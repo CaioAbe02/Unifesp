@@ -1,0 +1,3 @@
+flex arq.l
+gcc lex.yy.c -L"C:\GnuWin32\lib" -lfl -o exec
+./exec.exe ex.txt
