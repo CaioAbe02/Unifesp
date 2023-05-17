@@ -1,0 +1,15 @@
+int sum(int a, int b) {
+    int totalSum;
+    totalSum = a + b;
+    return totalSum;
+}
+
+void main(void) {
+    int x;
+    int y;
+    int z;
+
+    x = 1;
+    y = 2;
+    z = sum(x, y);
+}
