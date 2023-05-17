@@ -1,0 +1,143 @@
+#: import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+WindowManager:
+    LogoScreen:
+    MainMenu:
+    AddProduct:
+    ViewProduct:
+
+<LogoScreen>
+    MDScreen:
+        md_bg_color: "white"
+        Image:
+            source: "Semestre7/Desenvolvimento de Software/PrecoBom/imgs/LOGO.png"
+
+<MainMenu>
+    name: "main_menu"
+
+    MDScreen:
+        MDScrollView:
+            MDList:
+                TwoLineAvatarListItem:
+                    text: "NVIDIA RTX 2090"
+                    secondary_text: app.new_price_text(11000.00, app.calculate_discount(11550.00, 11000.00))
+                    secondary_theme_text_color: "Custom"
+                    secondary_text_color: "lime"
+                    on_release:
+                        root.manager.transition = SlideTransition()
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'view_product'
+
+                    ImageLeftWidget:
+                        source: "Semestre7/Desenvolvimento de Software/PrecoBom/imgs/flores1.jpg"
+                        radius: [100]
+
+                TwoLineAvatarListItem:
+                    text: "Samsumg Smart TV 42''"
+                    secondary_text: app.new_price_text(3500.00, app.calculate_discount(3395.00, 3500.00))
+                    secondary_theme_text_color: "Custom"
+                    secondary_text_color: "red"
+
+                    ImageLeftWidget:
+                        source: "Semestre7/Desenvolvimento de Software/PrecoBom/imgs/flores1.jpg"
+                        radius: [100]
+
+        MDFillRoundFlatIconButton:
+            icon: "plus"
+            text: "Adicionar produto"
+            y: 0 + dp(20)
+            x: root.width - self.width - dp(20)
+            on_release:
+                root.manager.transition = SlideTransition()
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'add_product'
+
+<AddProduct>
+    name: "add_product"
+
+    MDScreen:
+        MDBoxLayout:
+            padding: dp(20)
+            spacing: dp(20)
+            orientation: 'vertical'
+            adaptive_height: True
+            y: root.height - self.height
+
+            Label:
+                text: "Adicionar Produto"
+                font_size: "24sp"
+
+            MDTextField:
+                hint_text: "Nome do produto"
+
+            MDTextField:
+                hint_text: "Link do produto"
+
+            MDBoxLayout:
+                adaptive_height: True
+                adaptive_width: True
+                pos_hint: {'right': 1}
+
+                MDRectangleFlatButton:
+                    text: "Cancelar"
+                    line_color: (0, 0, 0, 0)
+                    theme_text_color: "Custom"
+                    text_color: "white"
+                    on_release:
+                        root.manager.transition = SlideTransition()
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'main_menu'
+
+                MDRaisedButton:
+                    text: "Salvar"
+                    on_release:
+                        root.manager.transition = SlideTransition()
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'main_menu'
+
+<ViewProduct>
+    name: "view_product"
+
+    MDScreen:
+        MDBoxLayout:
+            orientation: 'vertical'
+            spacing: dp(40)
+            padding: dp(40)
+            adaptive_height: True
+            y: root.height - self.height
+
+            Label:
+                text: "NVIDIA RTX 2090"
+                bold: True
+                font_size: "18sp"
+
+            MDBoxLayout:
+                spacing: dp(10)
+                pos_hint: {"center_x": .5}
+
+                MDLabel:
+                    text: "R$11.550,00"
+                    theme_text_color: "Hint"
+                    halign: "right"
+                    strikethrough: True
+
+                MDLabel:
+                    text: f"{str(int(app.calculate_discount(11550.00, 11000.00)))}%"
+                    theme_text_color: "Custom"
+                    text_color: "lime"
+                    halign: "left"
+                    size_hint: 0.9, 1
+
+            MDLabel:
+                text: "R$11.000,00"
+                theme_text_color: "Custom"
+                text_color: "lime"
+                halign: "center"
+
+            MDRaisedButton:
+                text: "Voltar"
+                pos_hint: {"right": 1}
+                on_release:
+                    root.manager.transition = SlideTransition()
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'main_menu'
