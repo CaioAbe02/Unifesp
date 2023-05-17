@@ -1,0 +1,14 @@
+<DragLabel>
+    drag_rectangle: self.x, self.y, self.width, self.height
+    drag_timeout: 10000000
+    drag_distance: 0
+
+FloatLayout:
+    DragLabel:
+        size_hint: 0.2, 0.2
+        text: 'Arraste-me'
+    DragLabel:
+        size_hint: 0.2, 0.2
+        x: 100
+        y: 100
+        text: 'Arraste-me 2'
