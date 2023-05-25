@@ -1,0 +1,29 @@
+{
+    "products": [
+        {
+            "url": "https://www.amazon.com.br/Galax-RTX2060-12GB-1CLICK-26NRL7HP68NC/dp/B09T2GYN3F/ref=sr_1_2?__mk_pt_BR=\u00c3\u2026M\u00c3\u2026\u00c5\u00bd\u00c3\u2022\u00c3\u2018&crid=EV2EPEIFMKPA&keywords=rtx+2060&qid=1684873215&sprefix=rtx+2060%2Caps%2C323&sr=8-2&ufe=app_do%3Aamzn1.fos.25548f35-0de7-44b3-b28e-0f56f3f96147",
+            "name": "RTX 2060",
+            "original_price": 2299.0,
+            "new_prices": [
+                2299.0
+            ]
+        },
+        {
+            "url": "https://www.amazon.com.br/Smartphone-Samsung-Galaxy-C\u00e2mera-Tripla/dp/B0BXB6QPH8/ref=sr_1_1?__mk_pt_BR=\u00c5M\u00c5\u017d\u00d5\u00d1&crid=R5ZTKQAPPZG&keywords=samsung%2Ba54&qid=1684876203&sprefix=samsung%2Ba%2Caps%2C305&sr=8-1&ufe=app_do%3Aamzn1.fos.25548f35-0de7-44b3-b28e-0f56f3f96147&th=1",
+            "name": "Samsung A54",
+            "original_price": 2099.0,
+            "new_prices": [
+                2099.0,
+                2198.78
+            ]
+        },
+        {
+            "url": "https://pt.aliexpress.com/item/1005005303018318.html?spm=a2g0o.store_pc_home.singleImageText_2005227157211.0&gatewayAdapt=glo2bra",
+            "name": "Xiaomi Redmi Note 12 Pro",
+            "original_price": 1430.33,
+            "new_prices": [
+                1430.33
+            ]
+        }
+    ]
+}
