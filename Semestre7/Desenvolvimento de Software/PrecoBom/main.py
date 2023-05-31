@@ -4,7 +4,9 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
 from kivy.clock import Clock
 from kivymd.uix.list import TwoLineIconListItem, IconLeftWidget
+from kivy.core.window import Window
 from bs4 import BeautifulSoup
+from requests_html import HTMLSession
 import requests
 import json
 
@@ -15,6 +17,18 @@ class LogoScreen(Screen):
     def switch_to_main_menu(self, dt):
         self.manager.transition = FadeTransition()
         self.manager.current = 'main_menu'
+
+class TelaInicial(Screen):
+    pass
+
+class Padrao(Screen):
+    pass
+
+class Cadastro(Screen):
+    pass
+
+class Login(Screen):
+    pass
 
 class MainMenu(Screen):
     app = None
@@ -144,26 +158,31 @@ class PrecoBom(MDApp):
         self.root.current = 'main_menu'
 
     def get_product_price(self, url):
-        store = self.get_store(url)
         price = None
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
-        page = requests.get(url, headers=headers)
-        soup1 = BeautifulSoup(page.content, "html.parser")
-        soup2 = BeautifulSoup(soup1.prettify(), "html.parser")
-
+        store = self.get_store(url)
         print(store)
-        if store == "amazon":
-            price = soup2.find('span', class_='a-offscreen').text.replace("R$", "")
-        elif store == "aliexpress":
+
+        if store == "aliexpress":
+            #self.get_aliexpress_html(url)
+            session = HTMLSession()
+            r = session.get(url)
+            r.html.render()
+            soup1 = BeautifulSoup(r.html.raw_html, "html.parser")
+            soup2 = BeautifulSoup(soup1.prettify(), "html.parser")
             price = soup2.find('span', class_='product-price-value').text.replace("R$", "")
-            print(soup2.find('h1', class_='product-price-value'))
+        elif store == "amazon":
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
+            page = requests.get(url, headers=headers)
+            soup1 = BeautifulSoup(page.content, "html.parser")
+            soup2 = BeautifulSoup(soup1.prettify(), "html.parser")
+            price = soup2.find('span', class_='a-offscreen').text.replace("R$", "")
 
         print(price)
 
         if "." in price:
             price = price.replace(".", "")
 
-        return price.replace(",", ".").replace(" ", "").replace("\n", "")
+        return price.replace(",", ".").strip()
 
     def get_store(self, url):
         if "amazon" in url.strip("."):
@@ -178,5 +197,9 @@ class PrecoBom(MDApp):
         elif number < 0:
             return "lime"
         return "yellow"
+
+    def close_app(self):
+        MDApp.get_running_app().stop()
+        Window.close()
 
 PrecoBom().run()
