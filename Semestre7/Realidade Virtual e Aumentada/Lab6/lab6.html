@@ -1,0 +1,45 @@
+<html>
+
+<head>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
+</head>
+
+<body>
+    <a-scene>
+        <a-sky color="#ECECEC"></a-sky>
+        <a-box position="-2 0 -2" color="#4CC3D9"
+            event-set__enter="_event: mouseenter; _target: #cuberText; visible: true;"
+            event-set__leave="_event: mouseleave; _target: #cuberText; visible: false;">
+            <a-text id="cuberText" value="This is a cube" align="center" color="#FFF" visible="false"
+                position="0 -0.55 0.55" geometry="primitive: plane; width: 1.75" material="color: #333">
+            </a-text>
+        </a-box>
+        <a-cylinder position="-4 0 -2" radius="0.5" height="1.5" color="#4CC3D9"
+            event-set__enter="_event: mouseenter; _target: #cylinderText; visible: true;"
+            event-set__leave="_event: mouseleave; _target: #cylinderText; visible: false;">
+            <a-text id="cylinderText" value="This is a cylinder" align="center" color="#FFF" visible="false"
+                position="0 -0.55 0.55" geometry="primitive: plane; width: 1.75" material="color: #333">
+            </a-text>
+        </a-cylinder>
+        <a-sphere position="-6 0 -2" radius="1" color="#4CC3D9"
+            event-set__enter="_event: mouseenter; _target: #sphereText; visible: true;"
+            event-set__leave="_event: mouseleave; _target: #sphereText; visible: false;">
+            <a-text id="sphereText" value="This is a sphere" align="center" color="#FFF" visible="false"
+                position="0 -0.55 1" geometry="primitive: plane; width: 1.75" material="color: #333">
+            </a-text>
+        </a-sphere>
+        <a-octahedron position="-9 0 -2" radius="1.5" color="#4CC3D9"
+            event-set__enter="_event: mouseenter; _target: #octahedronText; visible: true;"
+            event-set__leave="_event: mouseleave; _target: #octahedronText; visible: false;">
+            <a-text id="octahedronText" value="This is a octahedron" align="center" color="#FFF" visible="false"
+                position="0 -0.55 1.5" geometry="primitive: plane; width: 2" material="color: #333">
+            </a-text>
+        </a-octahedron>
+        <a-camera>
+            <a-cursor></a-cursor>
+        </a-camera>
+    </a-scene>
+</body>
+
+</html>
