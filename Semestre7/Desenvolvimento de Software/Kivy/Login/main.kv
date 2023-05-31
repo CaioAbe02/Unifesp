@@ -30,7 +30,9 @@ WindowManager:
             MDFillRoundFlatButton:
                 text: "Cadastrar"
                 pos_hint: {"center_x": .5, "center_y": .3}
-                on_release:  root.manager.current = 'cadastro'
+                on_release:
+                    print(root.manager)
+                    root.manager.current = 'cadastro'
 
         MDIconButton:
             icon: "close-circle"
@@ -38,6 +40,7 @@ WindowManager:
             on_release: app.close_app()
 
 <Padrao>
+    name: 'padrao'
     MDFloatLayout:
         size_hint: 0.5, 0.6
         pos_hint: {"center_x": .5, "center_y": .6}
@@ -50,6 +53,7 @@ WindowManager:
                 radius: 50, 50, 50, 50
 
         MDTextField:
+            id: textfield_usuario
             icon_left: "account"
             hint_text: "Usuário"
             mode: "round"
@@ -74,6 +78,14 @@ WindowManager:
                 self.icon = "eye" if self.icon == "eye-off" else "eye-off"
                 textfield_senha.password = False if textfield_senha.password is True else True
 
+    MDLabel:
+        id: confirma_login
+        text: ""
+        theme_text_color: "Custom"
+        text_color: "black"
+        halign: "center"
+        pos_hint: {"center_x": 0.5, "center_y": 0.27}
+
     MDIconButton:
         icon: "close-circle"
         pos_hint: {"center_x": 0.9, "center_y": 0.9}
@@ -97,6 +109,7 @@ WindowManager:
         MDFillRoundFlatButton:
             text: "Cadastrar"
             pos_hint: {"center_x": .5, "center_y": .2}
+            on_release: root.ids.padrao.ids.confirma_login.text = app.cadastro(root.ids.padrao.ids.textfield_usuario.text, root.ids.padrao.ids.textfield_senha.text)
 
 <Login>
     name: 'login'
@@ -111,3 +124,4 @@ WindowManager:
         MDFillRoundFlatButton:
             text: "Login"
             pos_hint: {"center_x": .5, "center_y": .2}
+            on_release: root.ids.padrao.ids.confirma_login.text = app.login(root.ids.padrao.ids.textfield_usuario.text, root.ids.padrao.ids.textfield_senha.text)
