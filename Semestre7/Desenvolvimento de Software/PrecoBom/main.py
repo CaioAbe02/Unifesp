@@ -128,7 +128,7 @@ class PrecoBom(MDApp):
        return round(discount, 1)
 
     def new_price_text(self, new_price, discount):
-        return f"R${new_price}     {self.get_number_sign(discount)}{(discount)}%"
+        return f"R${round(float(new_price), 2)}     {self.get_number_sign(discount)}{(discount)}%"
 
     def get_number_sign(self, number):
         if number > 0:
