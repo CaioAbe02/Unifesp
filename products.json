@@ -5,7 +5,8 @@
             "name": "RTX 2060",
             "original_price": 2299.0,
             "new_prices": [
-                2299.0
+                2299.0,
+                2289.0
             ]
         },
         {
@@ -14,15 +15,9 @@
             "original_price": 2099.0,
             "new_prices": [
                 2099.0,
-                2198.78
-            ]
-        },
-        {
-            "url": "https://pt.aliexpress.com/item/1005005303018318.html?spm=a2g0o.store_pc_home.singleImageText_2005227157211.0&gatewayAdapt=glo2bra",
-            "name": "Xiaomi Redmi Note 12 Pro",
-            "original_price": 1430.33,
-            "new_prices": [
-                1430.33
+                2198.78,
+                2197.0,
+                1929.0
             ]
         }
     ]

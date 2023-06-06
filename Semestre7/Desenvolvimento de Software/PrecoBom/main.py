@@ -8,6 +8,9 @@ from bs4 import BeautifulSoup
 import requests
 import json
 
+HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
+STORES = ["amazon"]
+
 class LogoScreen(Screen):
     def on_enter(self, *args):
         Clock.schedule_once(self.switch_to_main_menu, 2)
@@ -92,7 +95,7 @@ class ViewProduct(Screen):
         app = App.get_running_app()
         self.ids.product_name.text = name
         self.ids.original_price.text = f"R${original_price}"
-        self.ids.discount.text = f"{app.get_number_sign(new_price - original_price)}{str(int(app.calculate_discount(original_price, new_price)))}%"
+        self.ids.discount.text = f"{app.get_number_sign(new_price - original_price)}{(app.calculate_discount(original_price, new_price))}%"
         self.ids.discount.text_color = app.get_text_color(new_price - original_price)
         self.ids.new_price.text = f"R${str(new_price)}"
         self.ids.new_price.text_color = app.get_text_color(new_price - original_price)
@@ -108,21 +111,30 @@ class PrecoBom(MDApp):
         return main_kv
 
     def calculate_discount(self, original_price, new_price):
-       return 100 - (original_price / new_price) * 100
+       discount = float(100 - (original_price / new_price) * 100)
+       return round(discount, 1)
 
     def new_price_text(self, new_price, discount):
-        return f"R${new_price}     {self.get_number_sign(discount)}{abs(int(discount))}%"
+        return f"R${new_price}     {self.get_number_sign(discount)}{(discount)}%"
 
     def get_number_sign(self, number):
         if number > 0:
             return "+"
-        elif number < 0:
-            return "-"
-        else:
-            return ""
+        return ""
 
     def save_product(self, product_name, product_link):
-        product_price = self.get_product_price(product_link)
+        error = self.validate_text_fields(product_name, product_link)
+
+        if error != "":
+            return error
+
+        print("HMM")
+        product_price = round(self.get_product_price(product_link), 2)
+
+
+        if product_price == False:
+            return "Ainda não é possível rastrear o preço desse site"
+
 
         with open("products.json", "r") as products_file:
             data = json.load(products_file)
@@ -143,20 +155,34 @@ class PrecoBom(MDApp):
         self.root.transition.direction = 'right'
         self.root.current = 'main_menu'
 
+        return "Produto registrado com sucesso!"
+
+    def validate_text_fields(self, product_name, product_link):
+        if len(product_name) == 0:
+            return "Nome do produto está vazio"
+        elif len(product_link) == 0:
+            return "Link do produto está vazio"
+
+        if self.get_store(product_link) not in STORES:
+            return "Ainda não é possível rastrear para esse site"
+        try:
+            page = requests.get(product_link, headers=HEADERS)
+
+        except:
+            return "Link inválido"
+
+        return ""
+
     def get_product_price(self, url):
         store = self.get_store(url)
         price = None
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
-        page = requests.get(url, headers=headers)
+        page = requests.get(url, headers=HEADERS)
         soup1 = BeautifulSoup(page.content, "html.parser")
         soup2 = BeautifulSoup(soup1.prettify(), "html.parser")
 
         print(store)
         if store == "amazon":
             price = soup2.find('span', class_='a-offscreen').text.replace("R$", "")
-        elif store == "aliexpress":
-            price = soup2.find('span', class_='product-price-value').text.replace("R$", "")
-            print(soup2.find('h1', class_='product-price-value'))
 
         print(price)
 
@@ -168,8 +194,6 @@ class PrecoBom(MDApp):
     def get_store(self, url):
         if "amazon" in url.strip("."):
             return "amazon"
-        elif "aliexpress"in url.strip("."):
-            return "aliexpress"
         return None
 
     def get_text_color(self, number):

@@ -68,6 +68,10 @@ WindowManager:
                 id: textfield_product_link
                 hint_text: "Link do produto"
 
+            Label:
+                id: error_text
+                text: ""
+
             MDBoxLayout:
                 id: add_product_buttons
                 adaptive_height: True
@@ -87,7 +91,7 @@ WindowManager:
                 MDRaisedButton:
                     text: "Salvar"
                     on_release:
-                        app.save_product(root.ids.texfield_product_name.text, root.ids.textfield_product_link.text)
+                        root.ids.error_text.text = app.save_product(root.ids.texfield_product_name.text, root.ids.textfield_product_link.text)
 
 <ViewProduct>
     name: "view_product"
