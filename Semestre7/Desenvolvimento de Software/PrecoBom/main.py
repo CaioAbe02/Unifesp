@@ -11,6 +11,9 @@ import json
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
 STORES = ["amazon"]
+URL_DATABASE = "https://preco-bom-ddcc1-default-rtdb.firebaseio.com/.json"
+
+data_global = None
 
 class LogoScreen(Screen):
     def on_enter(self, *args):
@@ -35,6 +38,8 @@ class Login(Screen):
 class MainMenu(Screen):
     app = None
     update_prices = True
+    data = None
+    products = None
     def on_pre_enter(self, *args):
         self.app = App.get_running_app()
         self.ids.products_list.clear_widgets()
@@ -45,12 +50,12 @@ class MainMenu(Screen):
 
     def get_new_prices(self):
         change = False
-        with open("products.json", "r") as products_file:
-            data = json.load(products_file)
+        self.data = requests.get(URL_DATABASE).json()
+        global data_global
+        data_global = self.data
+        self.products = self.data['products']
 
-        products = data['products']
-
-        for product in products:
+        for product in self.products:
             url = product['url']
             prices = product['new_prices']
             new_price = float(self.app.get_product_price(url))
@@ -60,16 +65,11 @@ class MainMenu(Screen):
                 change = True
 
         if change:
-            with open("products.json", "w") as products_file:
-                json.dump(data, products_file)
+            print(self.products)
+            requests.patch(URL_DATABASE, data=json.dumps(self.data))
 
     def populate_list(self, md_list):
-        with open('products.json', 'r') as products_file:
-            data = json.load(products_file)
-
-        products = data['products']
-
-        for product in products:
+        for product in self.products:
             name = product['name']
             original_price = product['original_price']
             new_price = product['new_prices'][-1]
@@ -136,21 +136,17 @@ class PrecoBom(MDApp):
         return ""
 
     def save_product(self, product_name, product_link):
+        global data_global
         error = self.validate_text_fields(product_name, product_link)
 
         if error != "":
             return error
 
-        print("HMM")
-        product_price = round(self.get_product_price(product_link), 2)
+        product_price = round(float(self.get_product_price(product_link)), 2)
 
 
         if product_price == False:
             return "Ainda não é possível rastrear o preço desse site"
-
-
-        with open("products.json", "r") as products_file:
-            data = json.load(products_file)
 
         new_product = {
             "url": product_link,
@@ -159,10 +155,8 @@ class PrecoBom(MDApp):
             "new_prices": [float(product_price)]
         }
 
-        data['products'].append(new_product)
-
-        with open("products.json", "w") as product_file:
-            json.dump(data, product_file)
+        data_global['products'].append(new_product)
+        requests.patch(URL_DATABASE, data=json.dumps(data_global))
 
         self.root.transition = SlideTransition()
         self.root.transition.direction = 'right'
