@@ -1,6 +1,12 @@
-MainScreen:
-
 <MainScreen>:
-    Label:
-        text: 'Tela principal'
-        color: (0, 0, 0, 1)
+    MDTabs:
+        on_tab_switch: app.on_tab_switch(*args)
+        Tabs:
+            title: 'Cadastro'
+            Cadastro:
+                id: cadastro
+
+        Tabs:
+            title: 'Pesquisa'
+            Pesquisa:
+                id: pesquisa
