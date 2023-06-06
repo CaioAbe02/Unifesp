@@ -6,7 +6,6 @@ from kivy.clock import Clock
 from kivymd.uix.list import TwoLineIconListItem, IconLeftWidget
 from kivy.core.window import Window
 from bs4 import BeautifulSoup
-from requests_html import HTMLSession
 import requests
 import json
 
