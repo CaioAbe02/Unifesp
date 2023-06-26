@@ -41,7 +41,7 @@
         pos_hint: {"center_x": .5, "center_y": .2}
         color: (0, 0, 0, 1)
 
-    MDRaisedButton:
+    MDFillRoundFlatButton:
         text: "Registrar"
         pos_hint: {"center_x": .5, "center_y": .1}
         on_release: app.register(root.ids.cpf.text, root.ids.endereco.text, root.ids.idade.text, root.ids.nascimento.text, root.ids.nome.text, root.ids.salario.text)

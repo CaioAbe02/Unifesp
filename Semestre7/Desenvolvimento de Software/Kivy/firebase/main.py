@@ -4,6 +4,7 @@ from kivymd.uix.tab import MDTabsBase
 from kivymd.app import MDApp
 from kivy.app import App
 from kivy.lang import Builder
+from kivy_garden.graph import Graph
 import requests
 import json
 
@@ -150,7 +151,8 @@ class Pesquisa(MDScreen):
 
     def posicionar_botoes(self):
         self.ids.pesquisar.pos_hint = {'center_x': 2}
-        self.ids.modificar.pos_hint = {'center_x': .5}
+        self.ids.modificar.pos_hint = {'center_x': .6}
+        self.ids.apagar.pos_hint = {'center_x': .4}
 
     def resetar(self):
         self.ids.cpf.disabled = False
@@ -170,9 +172,14 @@ class Pesquisa(MDScreen):
 
         self.ids.pesquisar.pos_hint = {'center_x': .5}
         self.ids.modificar.pos_hint = {'center_x': 2}
+        self.ids.apagar.pos_hint = {'center_x': 2}
+
+class Grafico(MDScreen):
+    pass
 
 class MyApp(MDApp):
     def build(self):
+        Builder.load_file('grafico.kv')
         Builder.load_file('cadastro.kv')
         Builder.load_file('pesquisa.kv')
         Builder.load_file('main_screen.kv')
@@ -224,6 +231,21 @@ class MyApp(MDApp):
                 cadastro['salario'] = salario
                 requests.patch(URL, data=json.dumps(DICT_DADOS))
                 self.root.ids.pesquisa.ids.aviso.text = "Dados modificados com sucesso"
+
+    def apagar(self, cpf, endereco, idade, nascimento, nome, salario):
+        global DICT_DADOS
+        cadastro = {
+            'CPF': cpf,
+            'endereco': endereco,
+            'idade': idade,
+            'nascimento': nascimento,
+            'nome': nome,
+            'salario': salario
+        }
+
+        if cadastro in DICT_DADOS.values():
+            print("ACHOU")
+            requests.delete(URL, data=cadastro)
 
     def on_tab_switch(self, instance_tabs, instance_tab, instance_tab_label, tab_text):
         pesquisa = self.root.ids.pesquisa

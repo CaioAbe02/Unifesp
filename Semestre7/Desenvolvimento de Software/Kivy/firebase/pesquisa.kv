@@ -2,37 +2,37 @@
     MDTextField:
         id: cpf
         hint_text: "CPF"
-        pos_hint: {"center_x": .5, "center_y": .8}
+        pos_hint: {"center_x": .5, "center_y": 2}
         size_hint: 0.6, None
 
     MDTextField:
         id: endereco
         hint_text: "Endereço"
-        pos_hint: {"center_x": 2, "center_y": .7}
+        pos_hint: {"center_x": .5, "center_y": 2}
         size_hint: 0.6, None
 
     MDTextField:
         id: idade
         hint_text: "Idade"
-        pos_hint: {"center_x": 2, "center_y": .6}
+        pos_hint: {"center_x": .5, "center_y": 2}
         size_hint: 0.6, None
 
     MDTextField:
         id: nascimento
         hint_text: "Data de nascimento"
-        pos_hint: {"center_x": 2, "center_y": .5}
+        pos_hint: {"center_x": .5, "center_y": 2}
         size_hint: 0.6, None
 
     MDTextField:
         id: nome
         hint_text: "Nome"
-        pos_hint: {"center_x": 2, "center_y": .4}
+        pos_hint: {"center_x": .5, "center_y": 2}
         size_hint: 0.6, None
 
     MDTextField:
         id: salario
         hint_text: "Salário"
-        pos_hint: {"center_x": 2, "center_y": .3}
+        pos_hint: {"center_x":.5, "center_y": 2}
         size_hint: 0.6, None
 
     Label:
@@ -41,14 +41,20 @@
         pos_hint: {"center_x": .5, "center_y": .2}
         color: (0, 0, 0, 1)
 
-    MDRaisedButton:
+    MDFillRoundFlatButton:
         id: pesquisar
         text: "Pesquisar"
-        pos_hint: {"center_x": .5, "center_y": .1}
+        pos_hint: {"center_x": .5, "center_y": 2}
         on_release: app.pesquisar(root.ids.cpf.text)
 
-    MDRaisedButton:
+    MDFillRoundFlatButton:
         id: modificar
         text: "Modificar"
-        pos_hint: {"center_x": 2, "center_y": .1}
+        pos_hint: {"center_x": .5, "center_y": 2}
         on_release: app.modificar(root.ids.cpf.text, root.ids.endereco.text, root.ids.idade.text, root.ids.nascimento.text, root.ids.nome.text, root.ids.salario.text)
+
+    MDFillRoundFlatButton:
+        id: apagar
+        text: "Apagar"
+        pos_hint: {"center_x": .5, "center_y": 2}
+        on_release: app.apagar(root.ids.cpf.text, root.ids.endereco.text, root.ids.idade.text, root.ids.nascimento.text, root.ids.nome.text, root.ids.salario.text)
