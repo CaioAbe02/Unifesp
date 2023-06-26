@@ -9,6 +9,7 @@ WindowManager:
     MainMenu:
     AddProduct:
     ViewProduct:
+    EditProduct:
 
 <LogoScreen>
     MDScreen:
@@ -248,10 +249,70 @@ WindowManager:
                 text_color: "lime"
                 halign: "center"
 
-            MDRaisedButton:
-                text: "Voltar"
-                pos_hint: {"right": 1}
-                on_release:
-                    root.manager.transition = SlideTransition()
-                    root.manager.transition.direction = 'left'
-                    root.manager.current = 'main_menu'
+            MDFloatLayout:
+                MDFillRoundFlatButton:
+                    text: "Editar"
+                    pos_hint: {"center_x": .1, "center_y": .5}
+                    on_release:
+                        app.fill_edit_screen_textfields(root.ids.product_name.text)
+                        root.manager.transition = SlideTransition()
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'edit_product'
+
+                MDFillRoundFlatButton:
+                    text: "Visitar página"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_release: app.visit_site(root.ids.product_name.text)
+
+                MDFillRoundFlatButton:
+                    text: "Voltar"
+                    pos_hint: {"center_x": .9, "center_y": .5}
+                    on_release:
+                        root.manager.transition = SlideTransition()
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = 'main_menu'
+
+<EditProduct>
+    name: "edit_product"
+
+    MDScreen:
+        MDBoxLayout:
+            id: edit_product
+            padding: dp(20)
+            spacing: dp(20)
+            orientation: 'vertical'
+            adaptive_height: True
+            y: root.height - self.height
+
+            Label:
+                text: "Editar Produto"
+                font_size: "24sp"
+
+            MDTextField:
+                id: texfield_edit_product_name
+                hint_text: "Nome do produto"
+
+            Label:
+                id: error_edit_text
+                text: ""
+
+            MDBoxLayout:
+                id: edit_product_buttons
+                adaptive_height: True
+                adaptive_width: True
+                pos_hint: {'right': 1}
+
+                MDRectangleFlatButton:
+                    text: "Cancelar"
+                    line_color: (0, 0, 0, 0)
+                    theme_text_color: "Custom"
+                    text_color: "white"
+                    on_release:
+                        root.manager.transition = SlideTransition()
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = 'main_menu'
+
+                MDRaisedButton:
+                    text: "Salvar"
+                    on_release:
+                        root.ids.error_edit_text.text = app.edit_product(root.ids.texfield_edit_product_name.text)
