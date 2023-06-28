@@ -1,8 +1,5 @@
-from kivy.base import runTouchApp
-from kivy.app import App
-from kivy.uix.button import Button
-from kivy.uix.button import RectangleIconFlatButton
-from kivy.uix.label import Label
+from firebase import firebase
 
-
-runTouchApp(RectangleIconFlatButton(text = "Hello World Kivy"))
+firebase = firebase.FirebaseApplication('https://desenvolvimento-de-softw-5bbfe-default-rtdb.firebaseio.com/', None)
+result = firebase.get('/', None)
+print(result)
