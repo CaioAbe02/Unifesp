@@ -5,8 +5,10 @@ from kivymd.app import MDApp
 from kivy.app import App
 from kivy.lang import Builder
 from kivy_garden.graph import Graph
+from kivy.metrics import dp
 import requests
 import json
+from kivymd_extensions.akivymd.uix.charts import AKBarChart, AKLineChart, AKPieChart
 
 URL = "https://desenvolvimento-de-softw-5bbfe-default-rtdb.firebaseio.com/.json"
 DICT_DADOS = requests.get(URL).json()
@@ -50,8 +52,8 @@ class Cadastro(MDScreen):
         return True
 
     def cpf_is_uniq(self, new_cpf):
-        for cadastro in DICT_DADOS.values():
-            cpf = cadastro.get('CPF').replace(".", "").replace("-", "")
+        for cadastro in DICT_DADOS['cadastros']:
+            cpf = cadastro['cpf'].replace(".", "").replace("-", "")
             if new_cpf == cpf:
                 return False
         return True
@@ -124,8 +126,8 @@ class Pesquisa(MDScreen):
         return True
 
     def cpf_is_uniq(self, new_cpf):
-        for cadastro in DICT_DADOS.values():
-            cpf = cadastro.get('CPF').replace(".", "").replace("-", "")
+        for cadastro in DICT_DADOS['cadastros']:
+            cpf = cadastro['cpf'].replace(".", "").replace("-", "")
             if new_cpf == cpf:
                 self.aparecer_textfields(cadastro)
                 self.desabilitar_cpf()
@@ -158,26 +160,31 @@ class Pesquisa(MDScreen):
         self.ids.cpf.disabled = False
         self.ids.cpf.text = ""
         self.ids.endereco.text = ""
-        self.ids.endereco.pos_hint = {'center_x': 2}
+        self.ids.endereco.pos_hint = {'center_y': 2}
         self.ids.idade.text = ""
-        self.ids.idade.pos_hint = {'center_x': 2}
+        self.ids.idade.pos_hint = {'center_y': 2}
         self.ids.nascimento.text = ""
-        self.ids.nascimento.pos_hint = {'center_x': 2}
+        self.ids.nascimento.pos_hint = {'center_y': 2}
         self.ids.nome.text = ""
-        self.ids.nome.pos_hint = {'center_x': 2}
+        self.ids.nome.pos_hint = {'center_y': 2}
         self.ids.salario.text = ""
-        self.ids.salario.pos_hint = {'center_x': 2}
+        self.ids.salario.pos_hint = {'center_y': 2}
 
         self.ids.aviso.text = ""
 
         self.ids.pesquisar.pos_hint = {'center_x': .5}
-        self.ids.modificar.pos_hint = {'center_x': 2}
-        self.ids.apagar.pos_hint = {'center_x': 2}
+        self.ids.modificar.pos_hint = {'center_y': 2}
+        self.ids.apagar.pos_hint = {'center_y': 2}
 
 class Grafico(MDScreen):
     pass
 
+class Graph(MDScreen):
+    pass
+
 class MyApp(MDApp):
+    grafico = 0
+
     def build(self):
         Builder.load_file('grafico.kv')
         Builder.load_file('cadastro.kv')
@@ -192,7 +199,7 @@ class MyApp(MDApp):
             return False
 
         dados_novos = {
-            'CPF': cadastro.formatar_cpf(cpf),
+            'cpf': cadastro.formatar_cpf(cpf),
             'endereco': endereco,
             'idade': int(idade),
             'nascimento': nascimento,
@@ -200,11 +207,8 @@ class MyApp(MDApp):
             'salario': int(salario)
         }
         global DICT_DADOS
-        if DICT_DADOS == {}:
-            DICT_DADOS = {'cadastro1' : dados_novos}
-        else:
-            novo_cadastro = f"cadastro{len(DICT_DADOS)+1}"
-            DICT_DADOS.update({novo_cadastro: dados_novos})
+
+        DICT_DADOS['cadastros'].append(dados_novos)
 
         print("DICT_DADOS atualizado:", DICT_DADOS, "\n")
         requests.patch(URL, data=json.dumps(DICT_DADOS))
@@ -220,8 +224,8 @@ class MyApp(MDApp):
     def modificar(self, cpf, endereco, idade, nascimento, nome, salario):
         cpf = cpf.replace(".", "").replace("-", "")
         print(cpf)
-        for cadastro in DICT_DADOS.values():
-            dados_cpf = cadastro.get('CPF').replace(".", "").replace("-", "")
+        for cadastro in DICT_DADOS['cadastros']:
+            dados_cpf = cadastro['cpf'].replace(".", "").replace("-", "")
             print(dados_cpf)
             if dados_cpf == cpf:
                 cadastro['endereco'] = endereco
@@ -252,4 +256,113 @@ class MyApp(MDApp):
         cadastro = self.root.ids.cadastro
         pesquisa.resetar()
         cadastro.resetar()
+
+    def remove_marks_all_chips(self, selected_chip):
+        g = self.root.ids.grafico.ids.chips.children
+
+        for instance_chip in g:
+            if instance_chip.ids != {} and instance_chip != selected_chip:
+                instance_chip.active = False
+
+    def montar_grafico(self):
+        salarios = []
+
+        for cadastro in DICT_DADOS['cadastros']:
+            salarios.append(cadastro['salario'])
+
+        salarios.sort()
+
+        n = 5
+        min_salario = salarios[0]
+        max_salario = salarios[-1]
+        intervalo = (max_salario - min_salario) / n
+        x = []
+        for valor in range(n):
+            x.append(min_salario + (intervalo * (valor+1)))
+
+        hist = [0]*n
+        for v in salarios:
+            j = int((v - min_salario)/intervalo)
+            if j >= n:
+                j = n - 1
+            hist[j] += 1
+
+        if self.grafico != 0:
+            # apagar grafico
+            self.root.ids.grafico.ids.graph.clear_widgets()
+
+        for instance_chip in self.root.ids.grafico.ids.chips.children:
+            if instance_chip.active:
+                if instance_chip.text == "Barras":
+                    self.grafico = self.montar_grafico_barras(x, hist)
+                elif instance_chip.text == "Retas":
+                     self.grafico = self.montar_grafico_retas(x, hist)
+                elif instance_chip.text == "Pizza":
+                    self.grafico = self.montar_grafico_pizza(x, hist)
+
+    def montar_grafico_barras(self, x, hist):
+        barchart = AKBarChart(
+            x_values = x,
+            y_values = hist,
+            size_hint_y = None,
+            height = dp(280),
+            label_size = dp(12),
+            size = (dp(800), dp(300)),
+            labels = True
+            #bar_color
+            #line_color
+            #bg_color
+        )
+
+        self.root.ids.grafico.ids.graph.add_widget(barchart)
+
+        return barchart
+
+    def montar_grafico_retas(self, x, hist):
+        linechart = AKLineChart(
+            x_values = x,
+            y_values = hist,
+            size_hint_y = None,
+            height = dp(280),
+            label_size = dp(12),
+            size = (dp(800), dp(300))
+            #circles_color
+            #line_color
+            #bg_color
+        )
+
+        self.root.ids.grafico.ids.graph.add_widget(linechart)
+
+        return linechart
+
+    def montar_grafico_pizza(self, x, hist):
+        total_hist = sum(hist)
+        percentage_hist = []
+        i = 0
+        for valor in hist:
+            percentage_hist.append(valor / total_hist * 100)
+
+        chaves = []
+        for v in x:
+            chaves.append('R$ ' + str(v))
+
+        item = {}
+        for i in range(0, len(percentage_hist)):
+            item[chaves[i]] = percentage_hist[i]
+
+        items = [item]
+
+        piechart = AKPieChart(
+            items = items,
+            size_hint = [None, None],
+            height = dp(280),
+            size = (dp(800), dp(300)),
+            pos_hint = {"center_x": None, "center_y": None},
+            pos =[dp(250), dp(0)]
+        )
+
+        self.root.ids.grafico.ids.graph.add_widget(piechart)
+
+        return piechart
+
 MyApp().run()

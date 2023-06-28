@@ -5,25 +5,31 @@
             text: "Gráfico de distribuição de salários"
             valign: "center"
             pos_hint: {"center_x": .5, "center_y": 0.9}
-        MDChip:
-            text: "Barras"
-            pos_hint: {"center_x": 0.35, "center_y": 0.75}
-            md_bg_color: 160/255, 160/255, 160/255, 1
-            text_color: "white"
-        MDChip:
-            text: "Retas"
-            pos_hint: {"center_x": 0.5, "center_y": 0.75}
-            md_bg_color: 160/255, 160/255, 160/255, 1
-            text_color: "white"
-        MDChip:
-            text: "Pizza"
-            pos_hint: {"center_x": 0.65, "center_y": 0.75}
-            md_bg_color: 160/255, 160/255, 160/255, 1
-            text_color: "white"
+        MDFloatLayout:
+            id: chips
+            MDChip:
+                text: "Barras"
+                pos_hint: {"center_x": 0.35, "center_y": 0.75}
+                md_bg_color: 160/255, 160/255, 160/255, 1
+                text_color: "white"
+                on_active: if self.active: app.remove_marks_all_chips(self)
+            MDChip:
+                text: "Retas"
+                pos_hint: {"center_x": 0.5, "center_y": 0.75}
+                md_bg_color: 160/255, 160/255, 160/255, 1
+                text_color: "white"
+                on_active: if self.active: app.remove_marks_all_chips(self)
+            MDChip:
+                text: "Pizza"
+                pos_hint: {"center_x": 0.65, "center_y": 0.75}
+                md_bg_color: 160/255, 160/255, 160/255, 1
+                text_color: "white"
+                on_active: if self.active: app.remove_marks_all_chips(self)
 
-        #Graph:
-            
+        Graph:
+            id: graph
 
         MDFillRoundFlatButton:
             text: "Desenhar gráfico"
-            pos_hint: {"center_x": 0.5, "center_y": 0.2}
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            on_release: app.montar_grafico()
