@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+from datetime import date
+import time
 
 URL_DATABASE = "https://preco-bom-ddcc1-default-rtdb.firebaseio.com/.json"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
@@ -14,11 +16,21 @@ def get_new_prices():
         if product:
             url = product['url']
             prices = product['new_prices']
-            new_price = float(get_product_price(url))
+            dates = product['new_prices_dates']
+            new_price = get_product_price(url)
 
-            if new_price != prices[-1]:
-                    prices.append(float(new_price))
-                    change = True
+            if not new_price:
+                print(f"\n\n-= Não foi possível atualizar o preço de {product['name']} =-\n\n")
+            else:
+                new_price = float(new_price)
+
+                if new_price != prices[-1]:
+                        prices.append(float(new_price))
+                        dates.append(get_today_date())
+                        change = True
+                        print(f"\n\n-= Novo preço para {product['name']}: R${new_price} =-\n\n")
+
+        time.sleep(1)
 
     if change:
         requests.patch(URL_DATABASE, data=json.dumps(data))
@@ -31,14 +43,19 @@ def get_product_price(url):
     soup2 = BeautifulSoup(soup1.prettify(), "html.parser")
 
     if store == "amazon":
-        price = soup2.find('span', class_='a-offscreen').text.replace("R$", "")
+        price_element = soup2.find('span', class_='a-offscreen')
     elif store == "kabum":
-        price = soup2.find('h4', class_='finalPrice').text.replace("R$", "")
+        price_element = soup2.find('h4', class_='finalPrice')
+
+    if price_element is not None:
+        price = price_element.text.replace("R$", "")
+    else:
+        return False
 
     if "." in price:
         price = price.replace(".", "")
 
-    print(price)
+    # print(price)
 
     return price.replace(",", ".").strip()
 
@@ -48,6 +65,14 @@ def get_store(url):
     elif "kabum" in url.strip("."):
         return "kabum"
     return None
+
+def get_today_date():
+    today = date.today()
+    day = today.day
+    month = str(today.month).zfill(2)
+    year = str(today.year)[-2:]
+
+    return(f"{day}/{month}/{year}")
 
 if __name__ == "__main__":
     get_new_prices()

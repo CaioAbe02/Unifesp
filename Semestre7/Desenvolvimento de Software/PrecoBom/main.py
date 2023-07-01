@@ -3,12 +3,16 @@ from kivymd.app import MDApp
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
 from kivy.clock import Clock
-from kivymd.uix.list import TwoLineIconListItem, IconLeftWidget
+from kivymd.uix.list import TwoLineIconListItem, IconLeftWidget, ThreeLineIconListItem
 from kivy.core.window import Window
+from kivy.metrics import dp
+from kivymd.uix.tab import MDTabsBase
+from kivymd.uix.floatlayout import MDFloatLayout
 from bs4 import BeautifulSoup
 import requests
 import json
 import webbrowser as wb
+from kivymd_extensions.akivymd.uix.charts import AKLineChart
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
 STORES = ["amazon", "kabum"]
@@ -80,16 +84,27 @@ class MainMenu(Screen):
             if product:
                 name = product['name']
                 original_price = product['original_price']
+                prices = product['new_prices']
+                prices_dates = product['new_prices_dates']
                 new_price = product['new_prices'][-1]
+                tags = product['tags']
                 url = product['url']
 
-                item = TwoLineIconListItem(
+                item = ThreeLineIconListItem(
                     text = f"[b]{name}[/b]",
                     secondary_text = self.app.new_price_text(new_price, self.app.calculate_discount(original_price, new_price)),
                     secondary_theme_text_color = "Custom",
                     secondary_text_color = self.app.get_text_color(new_price - original_price),
+                    tertiary_text = tags
                 )
-                item.bind(on_release=lambda instance, name=name, new_price=new_price, original_price=original_price, url=url: self.view_product(name, new_price, original_price, url))
+                item.bind(on_release=lambda instance,
+                          name=name,
+                          prices=prices,
+                          prices_dates=prices_dates,
+                          new_price=new_price,
+                          original_price=original_price,
+                          url=url:
+                          self.view_product(name, prices, prices_dates, new_price, original_price, url))
 
 
                 icon = IconLeftWidget(
@@ -101,19 +116,19 @@ class MainMenu(Screen):
                 item.add_widget(icon)
                 md_list.add_widget(item)
 
-    def view_product(self, name, new_price, original_price, url):
+    def view_product(self, name, prices, prices_dates, new_price, original_price, url):
         self.manager.transition = SlideTransition()
         self.manager.transition.direction = 'right'
         self.manager.current = 'view_product'
 
         view_product_screen = self.manager.get_screen('view_product')
-        view_product_screen.update_product_info(name, new_price, original_price, url)
+        view_product_screen.update_product_info(name, prices, prices_dates, new_price, original_price, url)
 
 class AddProduct(Screen):
     pass
 
 class ViewProduct(Screen):
-    def update_product_info(self, name, new_price, original_price, url):
+    def update_product_info(self, name, prices, prices_dates, new_price, original_price, url):
         app = App.get_running_app()
         self.ids.product_name.text = name
         self.ids.original_price.text = f"R${original_price}"
@@ -123,8 +138,32 @@ class ViewProduct(Screen):
         self.ids.new_price.text_color = app.get_text_color(new_price - original_price)
         self.url = url
 
+        if len(prices) > 1:
+            self.build_graph(prices, prices_dates)
+        else:
+            self.ids.graph.clear_widgets()
+
+    def build_graph(self, prices, prices_dates):
+        linechart = AKLineChart(
+            x_values = list(range(len(prices))),
+            x_labels = prices_dates,
+            y_values = prices,
+            size_hint_y = None,
+            label_size = dp(12),
+            size = (dp(400), dp(300)),
+            pos = [dp(0), dp(-300)],
+            #circles_color
+            #line_color
+            #bg_color
+        )
+
+        self.ids.graph.add_widget(linechart)
+
     def update_product_name(self, name):
         self.ids.product_name.text = name
+
+class Graph(Screen):
+    pass
 
 class EditProduct(Screen):
     def on_enter(self, *args):
@@ -137,11 +176,18 @@ class EditProduct(Screen):
     def fill_textfields(self, product_name, product_url):
         self.ids.texfield_edit_product_name.text = product_name
 
+class Tabs(MDFloatLayout, MDTabsBase):
+    pass
+
+class GlobalProducts(Screen):
+    pass
+
 class WindowManager(ScreenManager):
     pass
 
 class PrecoBom(MDApp):
     def build(self):
+        Builder.load_file("kv/global_products.kv")
         main_kv = Builder.load_file("kv/main.kv")
         self.theme_cls.theme_style = "Dark"
 
