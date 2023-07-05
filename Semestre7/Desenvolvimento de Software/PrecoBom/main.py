@@ -8,17 +8,20 @@ from kivy.core.window import Window
 from kivy.metrics import dp
 from kivymd.uix.tab import MDTabsBase
 from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd_extensions.akivymd.uix.charts import AKLineChart
 from bs4 import BeautifulSoup
 import requests
 import json
 import webbrowser as wb
-from kivymd_extensions.akivymd.uix.charts import AKLineChart
+from datetime import date
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
-STORES = ["amazon", "kabum"]
+STORES = ["amazon", "kabum", "mercadolivre"]
 URL_DATABASE = "https://preco-bom-ddcc1-default-rtdb.firebaseio.com/.json"
+MY_PRODUCTS_JSON = "my_products.json"
 
 data_global = requests.get(URL_DATABASE).json()
+my_data_global = json.load(open(MY_PRODUCTS_JSON))
 
 class LogoScreen(Screen):
     def on_enter(self, *args):
@@ -45,15 +48,18 @@ class MainMenu(Screen):
     update_prices = True
     data = None
     products = None
+    my_products = None
     def on_pre_enter(self, *args):
         self.app = App.get_running_app()
         self.ids.products_list.clear_widgets()
+        self.ids.global_products.ids.global_products_list.clear_widgets()
         if self.update_prices == True:
             self.data = requests.get(URL_DATABASE).json()
             self.products = self.data['products']
             # self.get_new_prices()
             self.update_prices = False
-        self.populate_list(self.ids.products_list)
+        self.populate_my_list(self.ids.products_list)
+        self.populate_global_list(self.ids.global_products.ids.global_products_list)
 
     def get_new_prices(self):
         change = False
@@ -76,45 +82,47 @@ class MainMenu(Screen):
             print(self.products)
             requests.patch(URL_DATABASE, data=json.dumps(self.data))
 
-    def populate_list(self, md_list):
-        global data_global
-        data_global = self.data
-        self.products = self.data['products']
-        for product in self.products:
-            if product:
-                name = product['name']
-                original_price = product['original_price']
-                prices = product['new_prices']
-                prices_dates = product['new_prices_dates']
-                new_price = product['new_prices'][-1]
-                tags = product['tags']
-                url = product['url']
+    def populate_my_list(self, md_list):
+        global my_data_global
 
-                item = ThreeLineIconListItem(
-                    text = f"[b]{name}[/b]",
-                    secondary_text = self.app.new_price_text(new_price, self.app.calculate_discount(original_price, new_price)),
-                    secondary_theme_text_color = "Custom",
-                    secondary_text_color = self.app.get_text_color(new_price - original_price),
-                    tertiary_text = tags
-                )
-                item.bind(on_release=lambda instance,
-                          name=name,
-                          prices=prices,
-                          prices_dates=prices_dates,
-                          new_price=new_price,
-                          original_price=original_price,
-                          url=url:
-                          self.view_product(name, prices, prices_dates, new_price, original_price, url))
+        self.my_products = my_data_global['urls']
+
+        for my_product_url in self.my_products:
+            for product in self.products:
+                if product and product['url'] == my_product_url:
+                    name = product['name']
+                    original_price = product['original_price']
+                    prices = product['new_prices']
+                    prices_dates = product['new_prices_dates']
+                    new_price = product['new_prices'][-1]
+                    tags = product['tags']
+                    url = product['url']
+
+                    item = TwoLineIconListItem(
+                        text = f"[b]{name}[/b]",
+                        secondary_text = self.app.new_price_text(new_price, self.app.calculate_discount(original_price, new_price)),
+                        secondary_theme_text_color = "Custom",
+                        secondary_text_color = self.app.get_text_color(new_price - original_price)
+                    )
+                    item.bind(on_release=lambda instance,
+                            name=name,
+                            prices=prices,
+                            prices_dates=prices_dates,
+                            new_price=new_price,
+                            original_price=original_price,
+                            url=url:
+                            self.view_product(name, prices, prices_dates, new_price, original_price, url))
 
 
-                icon = IconLeftWidget(
-                    icon = "percent-circle-outline",
-                    theme_text_color = "Custom",
-                    text_color = self.app.get_text_color(new_price - original_price),
-                    icon_size = "36sp"
-                )
-                item.add_widget(icon)
-                md_list.add_widget(item)
+                    icon = IconLeftWidget(
+                        icon = "percent-circle-outline",
+                        theme_text_color = "Custom",
+                        text_color = self.app.get_text_color(new_price - original_price),
+                        icon_size = "36sp"
+                    )
+                    item.add_widget(icon)
+                    md_list.add_widget(item)
+                    break
 
     def view_product(self, name, prices, prices_dates, new_price, original_price, url):
         self.manager.transition = SlideTransition()
@@ -124,8 +132,24 @@ class MainMenu(Screen):
         view_product_screen = self.manager.get_screen('view_product')
         view_product_screen.update_product_info(name, prices, prices_dates, new_price, original_price, url)
 
+    def populate_global_list(self, md_list):
+        global data_global
+        data_global = self.data
+        self.products = self.data['products']
+
+        for product in self.products:
+            if product:
+                self.app.add_product_to_global_list(md_list, product)
+
 class AddProduct(Screen):
-    pass
+    def on_leave(self, *args):
+        self.clear_texts()
+
+    def clear_texts(self):
+        self.ids.texfield_product_name.text = ""
+        self.ids.textfield_product_link.text = ""
+        self.ids.textfield_product_tags.text = ""
+        self.ids.error_text.text = ""
 
 class ViewProduct(Screen):
     def update_product_info(self, name, prices, prices_dates, new_price, original_price, url):
@@ -136,6 +160,7 @@ class ViewProduct(Screen):
         self.ids.discount.text_color = app.get_text_color(new_price - original_price)
         self.ids.new_price.text = f"R${str(new_price)}"
         self.ids.new_price.text_color = app.get_text_color(new_price - original_price)
+        self.ids.add_product_button.text = self.define_add_product_button(url)
         self.url = url
 
         if len(prices) > 1:
@@ -162,6 +187,13 @@ class ViewProduct(Screen):
     def update_product_name(self, name):
         self.ids.product_name.text = name
 
+    def define_add_product_button(self, url):
+        global my_data_global
+
+        if url in my_data_global['urls']:
+            return "Remover produto"
+
+        return "Adicionar produto"
 class Graph(Screen):
     pass
 
@@ -173,14 +205,16 @@ class EditProduct(Screen):
         view_product_screen = self.manager.get_screen('view_product')
         self.url = view_product_screen.url
 
-    def fill_textfields(self, product_name, product_url):
+    def fill_textfields(self, product_name, product_tags):
         self.ids.texfield_edit_product_name.text = product_name
+        self.ids.texfield_edit_product_tags.text = product_tags
 
 class Tabs(MDFloatLayout, MDTabsBase):
     pass
 
 class GlobalProducts(Screen):
-    pass
+    def on_leave(self, *args):
+        self.ids.textfield_search.text = ""
 
 class WindowManager(ScreenManager):
     pass
@@ -205,15 +239,16 @@ class PrecoBom(MDApp):
             return "+"
         return ""
 
-    def save_product(self, product_name, product_link):
+    def save_product(self, product_name, product_link, product_tags):
         global data_global
+        global my_data_global
+
         error = self.validate_text_fields(product_name, product_link)
 
         if error != "":
             return error
 
         product_price = round(float(self.get_product_price(product_link)), 2)
-
 
         if product_price == False:
             return "Ainda não é possível rastrear o preço desse site"
@@ -222,11 +257,17 @@ class PrecoBom(MDApp):
             "url": product_link,
             "name": product_name,
             "original_price": float(product_price),
-            "new_prices": [float(product_price)]
+            "new_prices": [float(product_price)],
+            "new_prices_dates": [self.get_today_date()],
+            "tags": product_tags
         }
 
         data_global['products'].append(new_product)
         requests.patch(URL_DATABASE, data=json.dumps(data_global))
+
+        my_data_global['urls'].append(product_link)
+        with open(MY_PRODUCTS_JSON, 'w') as file:
+            json.dump(my_data_global, file)
 
         self.root.transition = SlideTransition()
         self.root.transition.direction = 'right'
@@ -264,6 +305,13 @@ class PrecoBom(MDApp):
             price = soup2.find('span', class_='a-offscreen').text.replace("R$", "")
         elif store == "kabum":
             price = soup2.find('h4', class_='finalPrice').text.replace("R$", "")
+        elif store == "mercadolivre":
+            div = soup2.find('div', class_='ui-pdp-price__second-line')
+            price = div.find('span', class_='andes-money-amount__fraction').text.strip()
+            price_cents = div.find('span', class_='andes-money-amount__cents')
+
+            if price_cents is not None:
+                price = f"{price},{price_cents.text.strip()}"
 
         print(price)
 
@@ -277,6 +325,8 @@ class PrecoBom(MDApp):
             return "amazon"
         elif "kabum" in url.strip("."):
             return "kabum"
+        elif "mercadolivre" in url.strip("."):
+            return "mercadolivre"
         return None
 
     def get_text_color(self, number):
@@ -286,28 +336,30 @@ class PrecoBom(MDApp):
             return "lime"
         return "yellow"
 
+    def get_today_date(self):
+        today = date.today()
+        day = str(today.day).zfill(2)
+        month = str(today.month).zfill(2)
+        year = str(today.year)[-2:]
+
+        return(f"{day}/{month}/{year}")
+
     def visit_site(self, product_name):
-        global data_global
-        products = data_global['products']
+        wb.open(self.root.get_screen('view_product').url)
 
-        for product in products:
-            if product:
-                if product['name'] == product_name:
-                    print(product_name)
-                    wb.open(product['url'])
-
-    def fill_edit_screen_textfields(self, product_name):
+    def fill_edit_screen_textfields(self):
         global data_global
         products = data_global['products']
 
         edit_product_screen = self.root.get_screen('edit_product')
+        url = self.root.get_screen('view_product').url
 
         for product in products:
             if product:
-                if product['name'] == product_name:
-                    edit_product_screen.fill_textfields(product_name, product['url'])
+                if product['url'] == url:
+                    edit_product_screen.fill_textfields(product['name'], product['tags'])
 
-    def edit_product(self, product_name):
+    def edit_product(self, product_name, product_tags):
         global data_global
 
         edit_product_screen = self.root.get_screen('edit_product')
@@ -317,6 +369,7 @@ class PrecoBom(MDApp):
             if product:
                 if product['url'] == url:
                     product['name'] = product_name
+                    product['tags'] = product_tags
                     break
 
         requests.patch(URL_DATABASE, data=json.dumps(data_global))
@@ -330,8 +383,68 @@ class PrecoBom(MDApp):
 
         return ""
 
-    def close_app(self):
-        MDApp.get_running_app().stop()
-        Window.close()
+    def add_or_remove_product(self):
+        global my_data_global
+        view_product_screen = self.root.get_screen('view_product')
+        url = view_product_screen.url
+
+        if url in my_data_global['urls']:
+            my_data_global['urls'].remove(url)
+            view_product_screen.ids.add_product_button.text = "Adicionar produto"
+        else:
+            my_data_global['urls'].append(url)
+            view_product_screen.ids.add_product_button.text = "Remover produto"
+
+        with open(MY_PRODUCTS_JSON, 'w') as file:
+            json.dump(my_data_global, file)
+
+    def search_product(self, text_search):
+        global data_global
+
+        main_menu_screen = self.root.get_screen('main_menu')
+        main_menu_screen.ids.global_products.ids.global_products_list.clear_widgets()
+
+        for product in data_global['products']:
+            if product:
+                if text_search in product['name'] or text_search in product['tags']:
+                    self.add_product_to_global_list(main_menu_screen.ids.global_products.ids.global_products_list, product)
+
+    def add_product_to_global_list(self, md_list, product):
+        name = product['name']
+        original_price = product['original_price']
+        prices = product['new_prices']
+        prices_dates = product['new_prices_dates']
+        new_price = product['new_prices'][-1]
+        tags = product['tags']
+        url = product['url']
+
+        item = ThreeLineIconListItem(
+            text = f"[b]{name}[/b]",
+            secondary_text = self.new_price_text(new_price, self.calculate_discount(original_price, new_price)),
+            secondary_theme_text_color = "Custom",
+            secondary_text_color = self.get_text_color(new_price - original_price),
+            tertiary_text = tags
+        )
+        item.bind(on_release=lambda instance,
+                    name=name,
+                    prices=prices,
+                    prices_dates=prices_dates,
+                    new_price=new_price,
+                    original_price=original_price,
+                    url=url:
+                    self.root.get_screen('main_menu').view_product(name, prices, prices_dates, new_price, original_price, url))
+
+
+        icon = IconLeftWidget(
+            icon = "percent-circle-outline",
+            theme_text_color = "Custom",
+            text_color = self.get_text_color(new_price - original_price),
+            icon_size = "36sp"
+        )
+        item.add_widget(icon)
+        md_list.add_widget(item)
+
+    def on_tab_switch(self, instance_tabs, instance_tab, instance_tab_label, tab_text):
+        self.root.get_screen('main_menu').ids.global_products.ids.textfield_search.text = ""
 
 PrecoBom().run()

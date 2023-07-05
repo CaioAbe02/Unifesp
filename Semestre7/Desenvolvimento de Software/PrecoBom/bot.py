@@ -46,9 +46,18 @@ def get_product_price(url):
         price_element = soup2.find('span', class_='a-offscreen')
     elif store == "kabum":
         price_element = soup2.find('h4', class_='finalPrice')
+    elif store == "mercadolivre":
+        div = soup2.find('div', class_='ui-pdp-price__second-line')
+        price_element = div.find('span', class_='andes-money-amount__fraction')
+        price_cents = div.find('span', class_='andes-money-amount__cents')
 
     if price_element is not None:
         price = price_element.text.replace("R$", "")
+
+        if store == "mercadolivre" and price_cents is not None:
+            price_cents = price_cents.text.strip()
+            price = f"{price.strip()},{price_cents}"
+
     else:
         return False
 
@@ -64,11 +73,13 @@ def get_store(url):
         return "amazon"
     elif "kabum" in url.strip("."):
         return "kabum"
+    elif "mercadolivre" in url.strip("."):
+        return "mercadolivre"
     return None
 
 def get_today_date():
     today = date.today()
-    day = today.day
+    day = str(today.day).zfill(2)
     month = str(today.month).zfill(2)
     year = str(today.year)[-2:]
 

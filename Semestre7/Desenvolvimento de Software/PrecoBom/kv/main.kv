@@ -24,6 +24,7 @@ WindowManager:
     MDScreen:
         MDFloatLayout:
             MDTabs:
+                on_tab_switch: app.on_tab_switch(*args)
                 Tabs:
                     title: "Meus produtos"
                     MDScrollView:
@@ -31,9 +32,14 @@ WindowManager:
                         MDList:
                             id: products_list
 
+                Tabs:
+                    title: "Produtos"
+                    GlobalProducts:
+                        id: global_products
+
                     MDFillRoundFlatIconButton:
                         icon: "plus"
-                        text: "Adicionar produto"
+                        text: "Cadastrar produto"
                         y: 0 + dp(20)
                         x: root.width - self.width - dp(20)
                         on_release:
@@ -54,7 +60,7 @@ WindowManager:
             y: root.height - self.height
 
             Label:
-                text: "Adicionar Produto"
+                text: "Registrar Produto"
                 font_size: "24sp"
 
             MDTextField:
@@ -64,6 +70,10 @@ WindowManager:
             MDTextField:
                 id: textfield_product_link
                 hint_text: "Link do produto"
+
+            MDTextField:
+                id: textfield_product_tags
+                hint_text: "Tags do produto"
 
             Label:
                 id: error_text
@@ -88,7 +98,7 @@ WindowManager:
                 MDRaisedButton:
                     text: "Salvar"
                     on_release:
-                        root.ids.error_text.text = app.save_product(root.ids.texfield_product_name.text, root.ids.textfield_product_link.text)
+                        root.ids.error_text.text = app.save_product(root.ids.texfield_product_name.text, root.ids.textfield_product_link.text, root.ids.textfield_product_tags.text)
 
 <ViewProduct>
     name: "view_product"
@@ -142,14 +152,21 @@ WindowManager:
                     pos_hint: {"center_x": .1}
                     y: 50
                     on_release:
-                        app.fill_edit_screen_textfields(root.ids.product_name.text)
+                        app.fill_edit_screen_textfields()
                         root.manager.transition = SlideTransition()
                         root.manager.transition.direction = 'right'
                         root.manager.current = 'edit_product'
 
                 MDFillRoundFlatButton:
+                    id: add_product_button
+                    text: "Adicionar produto"
+                    pos_hint: {"center_x": .35}
+                    y: 50
+                    on_release: app.add_or_remove_product()
+
+                MDFillRoundFlatButton:
                     text: "Visitar página"
-                    pos_hint: {"center_x": .5}
+                    pos_hint: {"center_x": .65}
                     y: 50
                     on_release: app.visit_site(root.ids.product_name.text)
 
@@ -182,6 +199,10 @@ WindowManager:
                 id: texfield_edit_product_name
                 hint_text: "Nome do produto"
 
+            MDTextField:
+                id: texfield_edit_product_tags
+                hint_text: "Tags do produto"
+
             Label:
                 id: error_edit_text
                 text: ""
@@ -205,4 +226,4 @@ WindowManager:
                 MDRaisedButton:
                     text: "Salvar"
                     on_release:
-                        root.ids.error_edit_text.text = app.edit_product(root.ids.texfield_edit_product_name.text)
+                        root.ids.error_edit_text.text = app.edit_product(root.ids.texfield_edit_product_name.text, root.ids.texfield_edit_product_tags.text)
