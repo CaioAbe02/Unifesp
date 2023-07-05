@@ -3,6 +3,7 @@ import requests
 import json
 from datetime import date
 import time
+from colorama import Fore, Style
 
 URL_DATABASE = "https://preco-bom-ddcc1-default-rtdb.firebaseio.com/.json"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36", "Accept-Encoding":"gzip, deflate", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
@@ -20,15 +21,18 @@ def get_new_prices():
             new_price = get_product_price(url)
 
             if not new_price:
-                print(f"\n\n-= Não foi possível atualizar o preço de {product['name']} =-\n\n")
+                print(Fore.RED + f"\n\n-= Não foi possível atualizar o preço de {product['name']} =-\n\n")
             else:
                 new_price = float(new_price)
 
                 if new_price != prices[-1]:
-                        prices.append(float(new_price))
-                        dates.append(get_today_date())
-                        change = True
-                        print(f"\n\n-= Novo preço para {product['name']}: R${new_price} =-\n\n")
+                    prices.append(float(new_price))
+                    dates.append(get_today_date())
+                    change = True
+                    print(Fore.GREEN + f"\n\n-= Novo preço para {product['name']}: R${new_price} =-\n\n")
+                else:
+                    print(Fore.YELLOW + f"\n\n-= {product['name']} não mudou de preço =-\n\n")
+
 
         time.sleep(1)
 
@@ -87,3 +91,4 @@ def get_today_date():
 
 if __name__ == "__main__":
     get_new_prices()
+    print(Style.RESET_ALL)
