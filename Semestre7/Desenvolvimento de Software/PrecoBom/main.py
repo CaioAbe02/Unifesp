@@ -164,9 +164,47 @@ class ViewProduct(Screen):
         self.url = url
 
         if len(prices) > 1:
-            self.build_graph(prices, prices_dates)
+            self.build_graph(prices, self.format_prices_dates(prices_dates))
         else:
             self.ids.graph.clear_widgets()
+
+    def format_prices_dates(self, prices_dates):
+        formated_prices_dates = []
+
+        for price_date in prices_dates:
+            date = price_date.split("/")
+            day = date[0]
+            month = date[1]
+
+            match month:
+                case "01":
+                    formated_prices_dates.append(f"{day}/jan")
+                case "02":
+                    formated_prices_dates.append(f"{day}/fev")
+                case "03":
+                    formated_prices_dates.append(f"{day}/mar")
+                case "04":
+                    formated_prices_dates.append(f"{day}/abr")
+                case "05":
+                    formated_prices_dates.append(f"{day}/mai")
+                case "06":
+                    formated_prices_dates.append(f"{day}/jun")
+                case "07":
+                    formated_prices_dates.append(f"{day}/jul")
+                case "08":
+                    formated_prices_dates.append(f"{day}/ago")
+                case "09":
+                    formated_prices_dates.append(f"{day}/set")
+                case "10":
+                    formated_prices_dates.append(f"{day}/out")
+                case "11":
+                    formated_prices_dates.append(f"{day}/nov")
+                case "12":
+                    formated_prices_dates.append(f"{day}/dez")
+                case _:
+                    formated_prices_dates.append(price_date)
+
+        return formated_prices_dates
 
     def build_graph(self, prices, prices_dates):
         linechart = AKLineChart(
