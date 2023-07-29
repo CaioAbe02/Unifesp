@@ -48,6 +48,11 @@ def get_product_price(url):
 
     if store == "amazon":
         price_element = soup2.find('span', class_='a-offscreen')
+        for n in range(5):
+            if price_element is not None:
+                break
+            else:
+                price_element = soup2.find('span', class_='a-offscreen')
     elif store == "kabum":
         price_element = soup2.find('h4', class_='finalPrice')
     elif store == "mercadolivre":

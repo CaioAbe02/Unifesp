@@ -135,7 +135,7 @@ class MainMenu(Screen):
     def populate_global_list(self, md_list):
         global data_global
         data_global = self.data
-        self.products = self.data['products']
+        self.products = self.products = sorted(self.data['products'], key=lambda x: x['name'])
 
         for product in self.products:
             if product:
@@ -248,10 +248,12 @@ class PrecoBom(MDApp):
         if error != "":
             return error
 
-        product_price = round(float(self.get_product_price(product_link)), 2)
+        product_price = self.get_product_price(product_link)
 
         if product_price == False:
             return "Ainda não é possível rastrear o preço desse site"
+        else:
+            product_price = round(float(product_price), 2)
 
         new_product = {
             "url": product_link,
@@ -302,16 +304,28 @@ class PrecoBom(MDApp):
 
         print(store)
         if store == "amazon":
-            price = soup2.find('span', class_='a-offscreen').text.replace("R$", "")
+            price_element = soup2.find('span', class_='a-offscreen')
+            for n in range(3):
+                if price_element is not None:
+                    break
+                else:
+                    price_element = soup2.find('span', class_='a-offscreen')
         elif store == "kabum":
-            price = soup2.find('h4', class_='finalPrice').text.replace("R$", "")
+            price_element = soup2.find('h4', class_='finalPrice')
         elif store == "mercadolivre":
             div = soup2.find('div', class_='ui-pdp-price__second-line')
-            price = div.find('span', class_='andes-money-amount__fraction').text.strip()
+            price_element = div.find('span', class_='andes-money-amount__fraction')
             price_cents = div.find('span', class_='andes-money-amount__cents')
 
-            if price_cents is not None:
-                price = f"{price},{price_cents.text.strip()}"
+        if price_element is not None:
+            price = price_element.text.replace("R$", "")
+
+            if store == "mercadolivre" and price_cents is not None:
+                price_cents = price_cents.text.strip()
+                price = f"{price.strip()},{price_cents}"
+
+        else:
+            return False
 
         print(price)
 
