@@ -343,7 +343,7 @@ class PrecoBom(MDApp):
         print(store)
         if store == "amazon":
             price_element = soup2.find('span', class_='a-offscreen')
-            for n in range(3):
+            while (True):
                 if price_element is not None:
                     break
                 else:
