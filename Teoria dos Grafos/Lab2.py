@@ -33,10 +33,10 @@ class Graph:
             self.degree_list.append(len(neighbors))
 
     def set_adjacency_matrix(self) -> None:
-        print(self.lista_adj)
+        #print(self.lista_adj)
 
         for node, neighbors in self.lista_adj.items():
-            row = [0] * self.size
+            row = [0] * len(list(self.lista_adj.keys()))
 
             for neighbor in neighbors:
                 index = list(self.lista_adj.keys()).index(neighbor)
@@ -44,12 +44,29 @@ class Graph:
 
             self.adjacency_matrix.append(row)
 
-        print(self.adjacency_matrix)
+        # print(self.adjacency_matrix)
 
+def find_cycles(adjacency_matrix) -> int:
+    size = len(adjacency_matrix[0]) - 1
+    cycles = []
+    for i in range(size):
+        for j in range(size):
+            if adjacency_matrix[i][j] == 1:
+                for k in range(size):
+                    if adjacency_matrix[j][k] == 1:
+                        if i == k:
+                            continue
+                        for l in range(size):
+                            if l == j:
+                                continue
+                            if adjacency_matrix[k][l] == 1 and adjacency_matrix[l][i] == 1:
+                                cycle = [i, j, k, l]
+                                cycle.sort()
+                                if cycle not in cycles:
+                                    cycles.append(cycle)
 
-def find_cycles() -> None:
-    pass
-
+    # print(cycles)
+    return (len(cycles))
 
 def main():
     graph = Graph()
@@ -75,5 +92,7 @@ def main():
     graph.sort_nodes()
     graph.set_degree_list()
     graph.set_adjacency_matrix()
+
+    print(find_cycles(graph.adjacency_matrix))
 
 main()
