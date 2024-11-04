@@ -6,18 +6,16 @@
     <title>WebGL</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="gl-matrix-min.js" defer></script>
     <script src="main.js" defer></script>
     <script  id="vertex-shader-2d" type="notjs">
       attribute vec2 position;
-      
       uniform mat4 matrix;
+      uniform float pointSize;
 
       void main() {
         gl_Position = matrix * vec4(position, 0, 1);
-        gl_PointSize = 5.0;
+        gl_PointSize = pointSize;
       }
-    
     </script>
     <script  id="fragment-shader-2d" type="notjs">
       precision mediump float;
@@ -28,7 +26,6 @@
         gl_FragColor = vec4(color,1.0);
       }
     </script>
-    
 </head>
 <body>
   <canvas id="canvas" width="500" height="500"></canvas>
