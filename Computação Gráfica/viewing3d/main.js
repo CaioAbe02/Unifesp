@@ -51,7 +51,11 @@ function main(){
 
   let theta = 0.0;
   let tx = 0.0;
-  let tx_step = 0.01;
+  let tx_step = 0.02;
+  let ty = 0.0;
+  let ty_step = 0.02;
+  let w = 0.0;
+  let w_step = 0.02;
 
   function drawCube(){
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -62,13 +66,13 @@ function main(){
       let xw_max = 2.0;
       let yw_min = -2.0;
       let yw_max = 2.0;
-      let z_near = 1.0;
+      let z_near = 4.0;
       let z_far = -4.0;
       let ortographicMatrix = ortographicProjection(xw_min, xw_max, yw_min, yw_max, z_near, z_far);
 
       // Rotate
       gl.viewport(0, canvas.height / 2, canvas.width / 2, canvas.height / 2);
-      theta += 0.01;
+      theta += 0.02;
       P0 = [1.0 * Math.sin(-theta), 1.0, 1.0 * Math.cos(-theta)];
       P_ref = [0.0, 0.0, 0.0];
       V = [0.0, 1.0, 0.0];
@@ -83,11 +87,56 @@ function main(){
       // Translate
       gl.viewport(canvas.width / 2, canvas.height / 2, canvas.width / 2, canvas.height / 2);
 
+      if(tx >= 3.0 || tx <= -1.0)
+        tx_step = -tx_step;
       tx += tx_step;
+      P0 = [tx, 1.0, 2.0];
+      P_ref = [-1.0 + tx, 0.0, 0.0];
+      V = [0.0, 1.0, 0.0];
+      viewingMatrix = set3dViewingMatrix(P0, P_ref, V);
+
+      matrix = m4.identity();
+      matrix = m4.multiply(matrix, ortographicMatrix);
+      matrix = m4.multiply(matrix, viewingMatrix);
+      gl.uniformMatrix4fv(matrixUniformLocation, false, matrix);
+      gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
+
+      // Translate
+      gl.viewport(0, 0, canvas.width / 2, canvas.height / 2);
+
+      if(ty >= 3.0 || ty <= -1.0)
+        ty_step = -ty_step;
+      ty += ty_step;
+      P0 = [1.0, ty, 2.0];
+      P_ref = [0.0, -1.0 + ty, 0.0];
+      V = [0.0, 1.0, 0.0];
+      viewingMatrix = set3dViewingMatrix(P0, P_ref, V);
+
+      matrix = m4.identity();
+      matrix = m4.multiply(matrix, ortographicMatrix);
+      matrix = m4.multiply(matrix, viewingMatrix);
+      gl.uniformMatrix4fv(matrixUniformLocation, false, matrix);
+      gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
+
+      // Scale
+      gl.viewport(canvas.width / 2, 0, canvas.width / 2, canvas.height / 2);
+
+      if(w >= 1.5 || w <= -1.0)
+        w_step = -w_step
+      w += w_step;
+      // console.log(w);
       P0 = [1.0, 1.0, 2.0];
       P_ref = [0.0, 0.0, 0.0];
       V = [0.0, 1.0, 0.0];
       viewingMatrix = set3dViewingMatrix(P0, P_ref, V);
+
+      xw_min = -2.0 + w;
+      xw_max = 2.0 - w;
+      yw_min = -2.0 + w;
+      yw_max = 2.0 - w;
+      z_near = 1.0;
+      z_far = -4.0;
+      ortographicMatrix = ortographicProjection(xw_min, xw_max, yw_min, yw_max, z_near, z_far);
 
       matrix = m4.identity();
       matrix = m4.multiply(matrix, ortographicMatrix);
