@@ -166,7 +166,7 @@ function main() {
 
   // Camera
   gl.viewport(0, 0, canvas.width, canvas.height);
-  let theta = 1.0;
+  let theta = degToRad(60);
   const xw_min = -0.5, xw_max = 0.5;
   const yw_min = -0.5, yw_max = 0.5;
   const z_near = -1.0, z_far = 10.0;
@@ -184,6 +184,13 @@ function main() {
 
   function updateScene() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    P0 = [4.0 * Math.sin(-theta), 1.7, 4.0 * Math.cos(-theta)];
+
+    viewingMatrix = set3dViewingMatrix(P0, P_ref, V);
+
+    gl.uniform3fv(viewPositionLocation, new Float32Array(P0));
+    gl.uniformMatrix4fv(viewMatrixUniformLocation, false, viewingMatrix);
 
     // Collision detection
     const collisionXCar1 = Math.abs(tx_player - tx_car1) <= (halfXPlayer + halfXCar);
@@ -253,6 +260,12 @@ function main() {
           tz_player -= t_step_player
           rotation = 90.0
         }
+      }
+      if (isKeyPressed('e')) {
+        theta = degToRad(60);
+      }
+      if (isKeyPressed('q')) {
+        theta = degToRad(120);
       }
     }
     else {
