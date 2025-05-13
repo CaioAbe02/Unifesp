@@ -18,5 +18,17 @@ def main():
   weather = Weather.SUNNY
   printResult(planner, strategy_selector, transport=transport, weather=weather)
 
+  transport = Transport.CAR
+  weather = Weather.SUNNY
+  printResult(planner, strategy_selector, transport=transport, weather=weather)
+
+  transport = Transport.CAR
+  weather = Weather.RAINY
+  printResult(planner, strategy_selector, transport=transport, weather=weather)
+
+  transport = Transport.BUS
+  weather = Weather.RAINY
+  printResult(planner, strategy_selector, transport=transport, weather=weather)
+
 if __name__ == "__main__":
    main()
