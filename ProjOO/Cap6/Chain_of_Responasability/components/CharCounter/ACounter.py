@@ -13,4 +13,4 @@ class ACounter(CharCounter):
       if char == "A" or char == "a":
         self.counter += 1
     print(f"A: {self.counter}")
-    return ""
+    return text
