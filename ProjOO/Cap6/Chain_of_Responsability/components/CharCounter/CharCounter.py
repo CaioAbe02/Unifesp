@@ -5,6 +5,11 @@ class CharCounter(ABC):
   def setNext(self):
     pass
 
+  def handleNext(self, text: str):
+    if not self.next:
+      return text
+    return self.next.countChar(text)
+
   @abstractmethod
-  def countChar(self):
+  def countChar(self, text: str):
     pass
