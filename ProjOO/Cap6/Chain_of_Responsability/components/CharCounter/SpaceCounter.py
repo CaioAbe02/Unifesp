@@ -1,9 +1,11 @@
 from .CharCounter import CharCounter
+from ..CharCounterHandler import CharCounterHandler
 
 class SpaceCounter(CharCounter):
-  def __init__(self):
+  def __init__(self, handler: CharCounterHandler):
     self.next: CharCounter = None
     self.counter = 0
+    self.handler = handler
 
   def setNext(self, next: CharCounter):
     self.next = next
@@ -12,5 +14,5 @@ class SpaceCounter(CharCounter):
     for char in text:
       if char == " ":
         self.counter += 1
-    print(f"Space: {self.counter}")
-    return self.next.countChar(text)
+    self.handler.setSpaceQty(self.counter)
+    return self.handleNext(text)

@@ -1,9 +1,11 @@
 from .CharCounter import CharCounter
+from ..CharCounterHandler import CharCounterHandler
 
 class ACounter(CharCounter):
-  def __init__(self):
+  def __init__(self, handler: CharCounterHandler):
     self.next: CharCounter = None
     self.counter = 0
+    self.handler = handler
 
   def setNext(self, next: CharCounter):
     self.next = next
@@ -12,5 +14,5 @@ class ACounter(CharCounter):
     for char in text:
       if char == "A" or char == "a":
         self.counter += 1
-    print(f"A: {self.counter}")
-    return text
+    self.handler.setAQty(self.counter)
+    return self.handleNext(text)
