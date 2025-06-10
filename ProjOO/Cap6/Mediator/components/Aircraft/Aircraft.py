@@ -1,8 +1,7 @@
-from abc import ABC, abstractmethod
-from ..ControlTower import ControlTowerMediator
-from ...enums.notifications import Notification
+from ..ControlTower.ControlTower import ControlTowerMediator
+from ..enums.notifications import Notification
 
-class Aircraft(ABC):
+class Aircraft:
   def __init__(self, name: str):
     self._control_tower: ControlTowerMediator = None
     self.name = name
@@ -15,12 +14,11 @@ class Aircraft(ABC):
 
   def requestLanding(self):
     print(f"[{self.name}]: Solicitando permissão para pouso.\n")
-    self.getControlTower.notify(self, Notification.REQUEST_LANDING)
+    self._control_tower.notify(self, Notification.REQUEST_LANDING)
 
-  @abstractmethod
   def land(self):
-    pass
+    print(f"[{self.name}]: Pouso comcluído.")
+    self._control_tower.notify(Notification.LANDED)
 
-  @abstractmethod
   def waitLanding(self):
-    pass
+    print(f"[{self.name}]: Recebido.")
