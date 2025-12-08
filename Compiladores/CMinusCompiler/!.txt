@@ -1,0 +1,2 @@
+flex cminus.l
+gcc lex.yy.c -o cminus.exe
