@@ -1,0 +1,9 @@
+void sort(void) {
+  int x;
+}
+
+void main(void) {
+  int x;
+
+  x = sort();
+}
