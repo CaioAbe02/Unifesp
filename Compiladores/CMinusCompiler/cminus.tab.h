@@ -78,11 +78,11 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 9 "cminus.y"
+#line 14 "cminus.y"
 
-    TreeNode *tnode;   /* nós da AST */
-    int value;         /* para números */
-    char *name;        /* para IDs */
+  TreeNode *tnode;
+  int value;
+  char *name;
 
 
 

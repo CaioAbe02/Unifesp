@@ -401,11 +401,8 @@ char *yytext;
 #line 1 "cminus.l"
 #define INITIAL 0
 #line 4 "cminus.l"
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "globals.h"
-#line 409 "lex.yy.c"
+#line 406 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -556,9 +553,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 17 "cminus.l"
+#line 14 "cminus.l"
 
-#line 562 "lex.yy.c"
+#line 559 "lex.yy.c"
 
 	if ( yy_init )
 		{
@@ -643,7 +640,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 18 "cminus.l"
+#line 15 "cminus.l"
 { char c;
                 do {
                   c = input();
@@ -659,164 +656,173 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 30 "cminus.l"
+#line 27 "cminus.l"
 {return ELSE;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 31 "cminus.l"
+#line 28 "cminus.l"
 {return IF;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 32 "cminus.l"
+#line 29 "cminus.l"
 {return INT;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 33 "cminus.l"
+#line 30 "cminus.l"
 {return RETURN;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 34 "cminus.l"
+#line 31 "cminus.l"
 {return VOID;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 35 "cminus.l"
+#line 32 "cminus.l"
 {return WHILE;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 36 "cminus.l"
+#line 33 "cminus.l"
 {return PLUS;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 37 "cminus.l"
+#line 34 "cminus.l"
 {return MINUS;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 38 "cminus.l"
+#line 35 "cminus.l"
 {return TIMES;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 39 "cminus.l"
+#line 36 "cminus.l"
 {return OVER;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 40 "cminus.l"
+#line 37 "cminus.l"
 {return LESS;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 41 "cminus.l"
+#line 38 "cminus.l"
 {return LESSEQUAL;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 42 "cminus.l"
+#line 39 "cminus.l"
 {return GREATER;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 43 "cminus.l"
+#line 40 "cminus.l"
 {return GREATEREQUAL;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 44 "cminus.l"
+#line 41 "cminus.l"
 {return EQUAL;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 45 "cminus.l"
+#line 42 "cminus.l"
 {return NOTEQUAL;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 46 "cminus.l"
+#line 43 "cminus.l"
 {return ASSIGN;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 47 "cminus.l"
+#line 44 "cminus.l"
 {return SEMI;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 48 "cminus.l"
+#line 45 "cminus.l"
 {return COMMA;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 49 "cminus.l"
+#line 46 "cminus.l"
 {return LPAREN;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 50 "cminus.l"
+#line 47 "cminus.l"
 {return RPAREN;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 51 "cminus.l"
+#line 48 "cminus.l"
 {return LBRACKET;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 52 "cminus.l"
+#line 49 "cminus.l"
 {return RBRACKET;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 53 "cminus.l"
+#line 50 "cminus.l"
 {return LBRACE;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 54 "cminus.l"
+#line 51 "cminus.l"
 {return RBRACE;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 55 "cminus.l"
-{return ID;}
+#line 52 "cminus.l"
+{
+                yylval.name = strdup(yytext);
+                return ID;
+              }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 56 "cminus.l"
-{return NUM;}
+{
+                yylval.value = atoi(yytext);
+                return NUM;
+              }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 57 "cminus.l"
+#line 60 "cminus.l"
 {lineno++;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 58 "cminus.l"
+#line 61 "cminus.l"
 { }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 59 "cminus.l"
-{return ERROR;}
+#line 62 "cminus.l"
+{
+                printf("LEXICAL ERROR: %s LINE: %d\n", yytext, lineno);
+                return ERROR;
+              }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 60 "cminus.l"
-{return END;}
+#line 66 "cminus.l"
+{return 0;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 61 "cminus.l"
+#line 67 "cminus.l"
 ECHO;
 	YY_BREAK
-#line 820 "lex.yy.c"
+#line 826 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1700,5 +1706,5 @@ int main()
 	return 0;
 	}
 #endif
-#line 61 "cminus.l"
+#line 67 "cminus.l"
 

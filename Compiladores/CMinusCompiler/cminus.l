@@ -1,9 +1,6 @@
 %option noyywrap
 
 %{
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "globals.h"
 %}
 
@@ -52,10 +49,19 @@ WHITESPACE  [ \t]+
 "]"           {return RBRACKET;}
 "{"           {return LBRACE;}
 "}"           {return RBRACE;}
-{IDENTIFIER}  {return ID;}
-{NUMBER}      {return NUM;}
+{IDENTIFIER}  {
+                yylval.name = strdup(yytext);
+                return ID;
+              }
+{NUMBER}      {
+                yylval.value = atoi(yytext);
+                return NUM;
+              }
 {NEWLINE}     {lineno++;}
 {WHITESPACE}  { }
-.             {return ERROR;}
-<<EOF>>       {return END;}
+.             {
+                printf("LEXICAL ERROR: %s LINE: %d\n", yytext, lineno);
+                return ERROR;
+              }
+<<EOF>>       {return 0;}
 %%
