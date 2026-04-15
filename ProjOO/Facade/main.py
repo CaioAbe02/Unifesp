@@ -15,7 +15,6 @@ class MidiaPlayer:
   def playPlaylist(self, playlist_name):
     print(f"Midia player is playing: {playlist_name}")
 
-
 class SoundSystem:
   def turnOn(self):
     print("Sound system was turned on")
@@ -54,3 +53,34 @@ class HomeTheater:
     self.sound_system.setVolume(50)
     self.ambient_light.turnOn()
     self.ambient_light.setWarmLightTemperature()
+    print("Ready to watch a movie!")
+
+  def listenToCalmPlaylist(self):
+    print("Preparing to listen to the calm playlist songs...")
+    self.tv.turnOff()
+    self.sound_system.turnOn()
+    self.sound_system.setVolume(60)
+    self.ambient_light.turnOn()
+    self.ambient_light.setWarmLightTemperature()
+    self.midia_player.playPlaylist("Calm")
+    print("Ready to listen to the calm playlist songs!")
+
+  def turnEverythingOff(self):
+    print("Preparing to turn everything off...")
+    self.tv.turnOff()
+    self.midia_player.turnOff()
+    self.sound_system.turnOff()
+    self.ambient_light.turnOff()
+    print("Everything was turned off!")
+
+def main():
+  home_theater = HomeTheater()
+
+  home_theater.watchMovie()
+  print("\n---\n")
+  home_theater.listenToCalmPlaylist()
+  print("\n---\n")
+  home_theater.turnEverythingOff()
+
+if __name__ == "__main__":
+  main()
