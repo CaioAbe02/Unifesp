@@ -69,6 +69,8 @@ function main() {
     return keysPressed[key] === true;
   }
 
+  const velocity_bonus = 1.7;
+
   // Player data
   const playerPositionBuffer = gl.createBuffer();
   const playerNormalBuffer = gl.createBuffer();
@@ -80,7 +82,7 @@ function main() {
   let rotation = 0.0
   const tx_player_initial = -2.0;
   const tz_player_initial = 0.0;
-  const t_step_player_initial = 0.01;
+  const t_step_player_initial = 0.01 * velocity_bonus;
   let tx_player = tx_player_initial;
   let tz_player = tz_player_initial;
   let t_step_player = t_step_player_initial;
@@ -97,7 +99,7 @@ function main() {
 
   const tx_car1_initial = 0.5;
   const tz_car1_initial = 4.0;
-  const t_step_car1_initial = 0.02;
+  const t_step_car1_initial = 0.02 * velocity_bonus;
   let tx_car1 = tx_car1_initial;
   let tz_car1 = tz_car1_initial;
   let t_step_car1 = t_step_car1_initial;
@@ -111,7 +113,7 @@ function main() {
 
   const tx_car2_initial = 1.0;
   const tz_car2_initial = 5.0;
-  const t_step_car2_initial = 0.015;
+  const t_step_car2_initial = 0.015 * velocity_bonus;
   let tx_car2 = tx_car2_initial;
   let tz_car2 = tz_car2_initial;
   let t_step_car2 = t_step_car2_initial;
@@ -131,7 +133,7 @@ function main() {
 
   const tx_car4_initial = -1.0;
   const tz_car4_initial = 6.0;
-  const t_step_car4_initial = -0.035;
+  const t_step_car4_initial = -0.035 * velocity_bonus;
   let tx_car4 = tx_car4_initial;
   let tz_car4 = tz_car4_initial;
   let t_step_car4 = t_step_car4_initial;

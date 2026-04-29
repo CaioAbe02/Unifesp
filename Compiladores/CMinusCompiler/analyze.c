@@ -73,24 +73,6 @@ static void insertNode( TreeNode * t)
           break;
       }
       break;
-
-    case NodeK_Stmt:
-      switch (t->kind.stmt)
-      { case StmtK_Assign:
-          if (st_lookup(t->name, t->scope) == -1) {
-              if (st_lookup(t->name, "global") == -1) {
-                  typeError(t, "not declared");
-              } else {
-                  st_insert(t->name, t->lineno, 0, "global", Integer);
-              }
-          } else {
-              st_insert(t->name, t->lineno, 0, t->scope, Integer);
-          }
-          break;
-        default:
-          break;
-      }
-      break;
     default:
       break;
   }
@@ -123,15 +105,6 @@ static void checkNode(TreeNode * t)
           break;
       }
       break;
-    case NodeK_Expr:
-      switch (t->kind.stmt)
-      { case StmtK_Assign:
-        typeError(t->child[0], "assigned with invalid type");
-          if (t->child[1])
-            if (t->child[1]->type = Void)
-              typeError(t->child[0], "assigned with invalid type");
-          break;
-      }
     default:
       break;
   }

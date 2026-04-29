@@ -32,15 +32,6 @@ int main(int argc, char **argv) {
       buildSymtab(root);
 
       typeCheck(root);
-
-      // printf("Building\n");
-      // buildSymtab(root);
-
-      // printf("Checking\n");
-      // typeCheck(root);
-
-      // printf("Tabela\n");
-      // printSymTab(stdout);
     }
     return 0;
 }

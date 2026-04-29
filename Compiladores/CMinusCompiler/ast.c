@@ -90,7 +90,7 @@ void printTree(TreeNode *tree) {
 
             case NodeK_Stmt:
               switch (tree->kind.stmt) {
-                case StmtK_Assign: printf("Stmt: Assign to %s\n", tree->name); break;
+                case StmtK_Assign: printf("Stmt: Assign\n"); break;
                 case StmtK_If:     printf("Stmt: If\n"); break;
                 case StmtK_While:  printf("Stmt: While\n"); break;
                 case StmtK_Return: printf("Stmt: Return\n"); break;

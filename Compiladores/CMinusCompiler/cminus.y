@@ -175,7 +175,6 @@ return_decl: RETURN SEMI {
 
 expression: var ASSIGN expression {
               $$ = newStmtNode(StmtK_Assign);
-              $$->name = $1->name;
               $$->child[0] = $1;
               $$->child[1] = $3;
               $$->lineno = lineno;
