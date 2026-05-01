@@ -1,0 +1,53 @@
+1.a
+?- filme(american_beauty, Y).
+1999
+
+1.b
+?- findall(N, filme(N, 2000), R).
+R = [down_from_the_mountain, o_brother_where_art_thou, ghost_world]
+
+1.c
+?- findall(N, (filme(N, A), A < 2000), R).
+R = [american_beauty, anna, barton_fink, the_big_lebowski, blade_runner, blood_simple, the_cotton_club, crimewave, fargo, the_firm, frankenweenie, ghost_busters, the_godfather, the_godfather_part_ii, the_godfather_part_iii, groundhog_day, hearts_of_darkness_a_filmmaker_s_apocalypse, the_hudsucker_proxy, inside_monkey_zetterland, lick_the_star, miller_s_crossing, mission_impossible, the_outsiders, peggy_sue_got_married, raising_arizona, rumble_fish, spies_like_us, star_wars_episode_i__the_phantom_menace, torrance_rises, the_usual_suspects, the_virgin_suicides, fall, if_lucy_fell, home_alone_3, the_horse_whisperer, just_cause, manny__lo, my_brother_the_pig, north]
+
+1.d
+?- findall(N, (filme(N, A), A > 1990), R).
+R = [american_beauty, barton_fink, the_big_lebowski, blade_runner, cq, down_from_the_mountain, fargo, the_firm, girl_with_a_pearl_earring, groundhog_day, hail_caesar, hearts_of_darkness_a_filmmaker_s_apocalypse, the_hudsucker_proxy, inside_monkey_zetterland, intolerable_cruelty, the_ladykillers, lick_the_star, lost_in_translation, the_man_who_wasn_t_there, marie_antoinette, mission_impossible, no_country_for_old_men, o_brother_where_art_thou, paris_je_t_aime, star_wars_episode_i__the_phantom_menace, torrance_rises, the_usual_suspects, the_virgin_suicides, an_american_rhapsody, the_black_dahlia, fall, eight_legged_freaks, ghost_world, a_good_woman, if_lucy_fell, home_alone_3, the_horse_whisperer, in_good_company, just_cause, the_island, a_love_song_for_bobby_long, manny__lo, match_point, my_brother_the_pig, north, the_perfect_score, the_spongebob_squarepants_filme, untitled_woody_allen_fall_project_2006, a_view_from_the_bridge]
+
+1.e
+?- ator(F1, A, _), ator(F2, A, _), F1 \= F2.
+A = kevin_spacey,
+F1 = american_beauty,
+F2 = the_usual_suspects
+
+1.f
+?- diretor(F, D), atriz(F, scarlett_johansson, _).
+D = peter_webber,
+F = girl_with_a_pearl_earring
+
+1.g
+?- ator(_, N, _), diretor(_, N)
+N = joseph_d_kucan
+
+1.h
+?- (ator(_, N, _); atriz(_, N, _)), diretor(_, N)
+N = sofia_coppola
+
+1.i
+?- filme(F, _), ator(F, john_goodman, _), ator(F, jeff_bridges, _).
+the_big_lebowski
+
+2.a
+released_after(M, Y) :- filme(M, YM), YM > Y.
+
+2.b
+released_before(M, Y) :- filme(M, YM), YM < Y.
+
+2.c
+same_year(M1, M2) :- filme(M1, Y), filme(M2, Y).
+
+2.d
+co_star(A1, A2) :-
+  (ator(F, A1, _), ator(F, A2, _));
+  (atriz(F, A1, _), atriz(F, A2, _));
+  (ator(F, A1, _), atriz(F, A2, _)).
