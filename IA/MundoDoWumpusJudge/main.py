@@ -34,7 +34,6 @@ ACOES_VALIDAS = {MOVER, VIRAR_E, VIRAR_D, ATIRAR, AGARRAR, ESCALAR}
 
 DX = [1, 0, -1, 0]
 DY = [0, 1, 0, -1]
-NOMES_DIR = ["Leste", "Norte", "Oeste", "Sul"]
 
 
 def celulas_adjacentes(x, y):
@@ -49,15 +48,12 @@ def celulas_adjacentes(x, y):
 def bfs_caminho(inicio, destino, celulas_seguras, direcao_inicial):
     if inicio == destino:
         return []
-
     estado_inicial = (inicio[0], inicio[1], direcao_inicial)
     fila = deque()
     fila.append((estado_inicial, []))
     visitados = {estado_inicial}
-
     while fila:
         (x, y, direcao), acoes = fila.popleft()
-
         nx, ny = x + DX[direcao], y + DY[direcao]
         if (nx, ny) in celulas_seguras and 1 <= nx <= 4 and 1 <= ny <= 4:
             novo_estado = (nx, ny, direcao)
@@ -67,34 +63,16 @@ def bfs_caminho(inicio, destino, celulas_seguras, direcao_inicial):
             if novo_estado not in visitados:
                 visitados.add(novo_estado)
                 fila.append((novo_estado, novas_acoes))
-
         nova_dir_e = (direcao + 1) % 4
         estado_e = (x, y, nova_dir_e)
         if estado_e not in visitados:
             visitados.add(estado_e)
             fila.append((estado_e, acoes + [VIRAR_E]))
-
         nova_dir_d = (direcao - 1) % 4
         estado_d = (x, y, nova_dir_d)
         if estado_d not in visitados:
             visitados.add(estado_d)
             fila.append((estado_d, acoes + [VIRAR_D]))
-
-    return None
-
-
-def direcao_para(de_pos, para_pos):
-    """Retorna o índice de direção necessário para ir de `de_pos` para `para_pos`."""
-    dx = para_pos[0] - de_pos[0]
-    dy = para_pos[1] - de_pos[1]
-    if dx == 1:
-        return 0  # Leste
-    if dx == -1:
-        return 2  # Oeste
-    if dy == 1:
-        return 1  # Norte
-    if dy == -1:
-        return 3  # Sul
     return None
 
 
@@ -114,13 +92,11 @@ class Agente:
         for cx in range(1, 5):
             for cy in range(1, 5):
                 self.mapa[(cx, cy)] = "desconhecida"
-
         self.mapa[(1, 1)] = "segura"
         self.visitadas = {(1, 1)}
 
         self.candidatos_wumpus = set()
         self.candidatos_buraco = set()
-
         self.wumpus_confirmado = None
 
         self.plano = []
@@ -137,9 +113,10 @@ class Agente:
         self.tentando_atirar = False
         self.alvo_tiro = None
 
+        self.celulas_descartadas_wumpus = set()
+
     def atualizar_conhecimento(self, sensores):
         pos = (self.x, self.y)
-
         self.mapa[pos] = "segura"
         self.visitadas.add(pos)
 
@@ -155,6 +132,18 @@ class Agente:
             self.wumpus_confirmado = None
             self.candidatos_wumpus.clear()
             self._recalcular_seguranca()
+
+        if self.ultima_acao == ATIRAR and "GRITO" not in sensores and self.wumpus_vivo:
+            tx = self.x + DX[self.direcao]
+            ty = self.y + DY[self.direcao]
+            if 1 <= tx <= 4 and 1 <= ty <= 4:
+                self.celulas_descartadas_wumpus.add((tx, ty))
+                self.candidatos_wumpus.discard((tx, ty))
+                if self.wumpus_confirmado == (tx, ty):
+                    self.wumpus_confirmado = None
+                if len(self.candidatos_wumpus) == 1:
+                    self.wumpus_confirmado = next(iter(self.candidatos_wumpus))
+                    self.mapa[self.wumpus_confirmado] = "perigosa"
 
         if "BRISA" in sensores:
             self.brisa_em.add(pos)
@@ -187,6 +176,7 @@ class Agente:
             novos_candidatos -= adj
 
         novos_candidatos -= self.candidatos_buraco
+        novos_candidatos -= self.celulas_descartadas_wumpus
 
         self.candidatos_wumpus = novos_candidatos
 
@@ -223,20 +213,22 @@ class Agente:
             self.mapa[c] = "perigosa"
 
     def _marcar_seguros(self):
-        sem_buraco: set = set()
+        sem_buraco = set()
         for pos in self.sem_brisa_em:
             for adj in celulas_adjacentes(pos[0], pos[1]):
                 sem_buraco.add(adj)
         sem_buraco |= self.visitadas
 
         if not self.wumpus_vivo:
-            sem_wumpus: set = {(cx, cy) for cx in range(1, 5) for cy in range(1, 5)}
+            sem_wumpus = {(cx, cy) for cx in range(1, 5) for cy in range(1, 5)}
         else:
             sem_wumpus = set()
             for pos in self.sem_cheiro_em:
                 for adj in celulas_adjacentes(pos[0], pos[1]):
                     sem_wumpus.add(adj)
             sem_wumpus |= self.visitadas
+            for c in self.celulas_descartadas_wumpus:
+                sem_wumpus.add(c)
 
         for cx in range(1, 5):
             for cy in range(1, 5):
@@ -267,19 +259,15 @@ class Agente:
     def planejar_ir_para(self, destino):
         seguras = self.celulas_seguras()
         seguras.add((self.x, self.y))
-        return bfs_caminho(
-            (self.x, self.y), destino, seguras, self.direcao
-        )
+        return bfs_caminho((self.x, self.y), destino, seguras, self.direcao)
 
     def melhor_destino_exploracao(self):
         fronteira = self.fronteira_nao_visitada()
         if fronteira:
             return min(fronteira, key=lambda c: abs(c[0] - self.x) + abs(c[1] - self.y))
-
         nao_visitadas = {c for c, v in self.mapa.items() if v == "segura" and c not in self.visitadas}
         if nao_visitadas:
             return min(nao_visitadas, key=lambda c: abs(c[0] - self.x) + abs(c[1] - self.y))
-
         return None
 
     def tentar_atirar_wumpus(self):
@@ -302,9 +290,7 @@ class Agente:
         posicoes_tiro.sort(key=lambda pt: abs(pt[0][0] - self.x) + abs(pt[0][1] - self.y))
         pos_tiro, dir_necessaria = posicoes_tiro[0]
 
-        plano_movimento = bfs_caminho(
-            (self.x, self.y), pos_tiro, seguras, self.direcao
-        )
+        plano_movimento = bfs_caminho((self.x, self.y), pos_tiro, seguras, self.direcao)
         if plano_movimento is None:
             return False
 
@@ -324,6 +310,22 @@ class Agente:
         self.tentando_atirar = True
         return True
 
+    def validar_plano(self):
+        if not self.plano:
+            return
+        x, y, d = self.x, self.y, self.direcao
+        for acao in self.plano:
+            if acao == MOVER:
+                nx, ny = x + DX[d], y + DY[d]
+                if self.mapa.get((nx, ny)) == "perigosa":
+                    self.plano = []
+                    return
+                x, y = nx, ny
+            elif acao == VIRAR_E:
+                d = (d + 1) % 4
+            elif acao == VIRAR_D:
+                d = (d - 1) % 4
+
     def executar_acao(self, acao):
         if acao == MOVER:
             nx = self.x + DX[self.direcao]
@@ -338,8 +340,6 @@ class Agente:
             if self.flechas > 0:
                 self.flechas -= 1
             self.tentando_atirar = False
-        elif acao == AGARRAR:
-            pass
         self.ultima_acao = acao
 
     def tomar_decisao(self, sensores):
@@ -347,6 +347,7 @@ class Agente:
             self.plano = []
 
         self.atualizar_conhecimento(sensores)
+        self.validar_plano()
 
         if self.tem_ouro:
             if (self.x, self.y) == (1, 1):
@@ -355,7 +356,6 @@ class Agente:
                 self.plano = self.planejar_ir_para((1, 1))
                 if self.plano is None:
                     self.plano = []
-
             if self.plano:
                 acao = self.plano.pop(0)
                 self.executar_acao(acao)
@@ -390,10 +390,15 @@ class Agente:
         if self.wumpus_vivo and self.candidatos_wumpus and self.flechas > 0:
             seguras = self.celulas_seguras()
             for cand in self.candidatos_wumpus:
+                if cand in self.celulas_descartadas_wumpus:
+                    continue
                 wx, wy = cand
                 for dir_tiro in range(4):
                     fx = wx - DX[dir_tiro]
                     fy = wy - DY[dir_tiro]
+                    alvo = (fx + DX[dir_tiro], fy + DY[dir_tiro])
+                    if alvo in self.celulas_descartadas_wumpus:
+                        continue
                     if 1 <= fx <= 4 and 1 <= fy <= 4 and (fx, fy) in seguras:
                         plano_tiro = bfs_caminho((self.x, self.y), (fx, fy), seguras, self.direcao)
                         if plano_tiro is not None:
@@ -436,28 +441,6 @@ class Agente:
                             self.executar_acao(acao)
                             return acao
 
-        perigos_nao_wumpus = self.candidatos_buraco - self.candidatos_wumpus
-        if perigos_nao_wumpus:
-            seguras_atual = self.celulas_seguras()
-            melhor_plano = None
-            melhor_dest = None
-            for c in perigos_nao_wumpus:
-                adj_vis = [a for a in celulas_adjacentes(c[0], c[1]) if a in self.visitadas]
-                if not adj_vis:
-                    continue
-                seguras_com_risco = seguras_atual | {c}
-                plano = bfs_caminho((self.x, self.y), c, seguras_com_risco, self.direcao)
-                if plano is not None:
-                    if melhor_plano is None or len(plano) < len(melhor_plano):
-                        melhor_plano = plano
-                        melhor_dest = c
-            if melhor_plano is not None:
-                self.plano = melhor_plano
-                if self.plano:
-                    acao = self.plano.pop(0)
-                    self.executar_acao(acao)
-                    return acao
-
         if (self.x, self.y) == (1, 1):
             return ESCALAR
 
@@ -474,6 +457,7 @@ class Agente:
         # =================================================================
         # FIM DA LÓGICA DO AGENTE
         # =================================================================
+
 
 # =====================================================================
 # SISTEMA DE AVALIAÇÃO E CHAVEAMENTO (NÃO MODIFICAR ABAIXO)
