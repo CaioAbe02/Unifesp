@@ -1,6 +1,11 @@
 from abc import ABC, abstractmethod
 
-class EspecieArvore:
+class IArvore(ABC):
+  @abstractmethod
+  def printArvore():
+    pass
+
+class EspecieArvore(IArvore):
   def __init__(
     self,
     especie: str,
@@ -26,9 +31,16 @@ class EspecieArvore:
     print(f"Comprimento da folha: {self.comprimento_folha_min} a {self.comprimento_folha_max} cm")
     print()
 
-class Arvore():
+class Arvore(IArvore):
   def __init__(self, especie: EspecieArvore, altura: int, diametro_tronco: int, comprimento_folha: int):
     self.especie = especie
     self.altura = altura
     self.diametro_tronco = diametro_tronco
     self.comprimento_folha = comprimento_folha
+
+  def printArvore(self):
+    print(f"-= {self.especie.especie} =-")
+    print(f"Altura: {self.altura} m ({self.especie.altura_min} a {self.especie.altura_max} m)")
+    print(f"Diâmetro do tronco: {self.diametro_tronco} cm ({self.especie.diametro_tronco_min} a {self.especie.diametro_tronco_max} cm)")
+    print(f"Comprimento da folha: {self.comprimento_folha} cm ({self.especie.comprimento_folha_min} a {self.especie.comprimento_folha_max} cm)")
+    print()
